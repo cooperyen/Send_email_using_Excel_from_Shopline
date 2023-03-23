@@ -1,7 +1,9 @@
 import os
 from setting import port
+import funcs
 
 # cmd setting.
+
 
 def createChrome():
     chromePath = 'C:/Users/coope/AppData/Local/Google/Chrome/Application/chrome.exe'
@@ -9,3 +11,4 @@ def createChrome():
     chromeUserLoginTemporaryData = 'C:/selenium/AutomationProfile'
     cmdCommand = f'"{chromePath}" --remote-debugging-port={port} --user-data-dir="{chromeUserLoginTemporaryData}"'
     os.popen(cmdCommand)
+    funcs.wait()

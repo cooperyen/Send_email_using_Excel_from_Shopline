@@ -1,7 +1,7 @@
 
 from create_chrome import createChrome
+from el_func import elementTarget
 from webdriver_setting import driver, driverURL
-from time import sleep
 from selenium.webdriver.common.by import By
 
 
@@ -12,14 +12,8 @@ createChrome()
 driver = driver()
 driver.get(driverURL)
 
-a = driver.find_element(
-    By.XPATH, '//div[@data-e2e-id="sidebar_customer_management_menu"]')
 
-b = driver.find_element(
-    By.XPATH, '//a[@data-e2e-id="sidebar_customer_management_submenu_users"]')
-
-print(a.click())
-print(b.click())
-
-
-sleep(10)
+elementTarget(driver,
+            '//div[@data-e2e-id="sidebar_customer_management_menu"]', By.XPATH).click()
+elementTarget(driver,
+            '//a[@data-e2e-id="sidebar_customer_management_submenu_users"]', By.XPATH).click()
