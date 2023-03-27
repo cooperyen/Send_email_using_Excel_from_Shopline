@@ -1,20 +1,21 @@
 import openpyxl
 from openpyxl.styles import Font
 import os
+import time
 
 desk = os.path.join(os.path.expanduser("~"), 'Desktop') + '\\'
 
 print("Processing...")
 
 titleList = ['顧客 ID', '全名', '手機號碼', '電郵', '訂單數', '累積金額', '最後登入時間', '會員級別']
-saveNewExcelName = 'new_excel.xlsx'
+saveNewExcelName = 'FDSFSDFDFDS.xlsx'
 
 array = []
-# get items title
 
 
 def che(findOrders, condition):
-    wb = openpyxl.load_workbook('test.xlsx')
+    wb = openpyxl.load_workbook(
+        'rafagogorafa154_ShoplineCustomerReport_20230327173920.xlsx')
     sheet = wb.worksheets[0]
 
     for columns in range(1, sheet.max_column + 1, 1):
@@ -77,7 +78,9 @@ def createNewExcelWithData(titleList, saveNewExcelName):
 def run(findOrders=1, condition='=='):
     che(findOrders, condition)
     createNewExcelWithData(titleList, saveNewExcelName)
-# new.save('produceSales_update.xlsx')
+    # new.save('produceSales_update.xlsx')
 
 
-print("end.")
+run()
+
+print(time.asctime(time.localtime(time.time())))
