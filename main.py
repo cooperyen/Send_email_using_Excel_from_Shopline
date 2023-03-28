@@ -3,7 +3,6 @@
 import pyperclip as pc
 import string
 import pyautogui
-from excel_xls2xlsx import formatXlsToXLSX
 from web_handler.create_chrome import createChrome
 from web_handler.el_func import elementTarget
 from web_handler.webdriver_setting import driver, driverURL
@@ -65,4 +64,3 @@ def getAllCustomerData(driver):
 
 
 # getAllCustomerData(driver)
-formatXlsToXLSX()

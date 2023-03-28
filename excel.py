@@ -3,19 +3,19 @@ from openpyxl.styles import Font
 import os
 import time
 
-desk = os.path.join(os.path.expanduser("~"), 'Desktop') + '\\'
-
-print("Processing...")
+path = 'Desktop'
+fullPath = os.path.join(os.path.expanduser("~"), path) + '\\'
 
 titleList = ['顧客 ID', '全名', '手機號碼', '電郵', '訂單數', '累積金額', '最後登入時間', '會員級別']
 saveNewExcelName = 'FDSFSDFDFDS.xlsx'
+OPEN = 'rafagogorafa154_ShoplineCustomerReport_20230327173920.xlsx'
 
 array = []
 
 
 def che(findOrders, condition):
     wb = openpyxl.load_workbook(
-        'rafagogorafa154_ShoplineCustomerReport_20230327173920.xlsx')
+        OPEN)
     sheet = wb.worksheets[0]
 
     for columns in range(1, sheet.max_column + 1, 1):
@@ -26,7 +26,6 @@ def che(findOrders, condition):
 
             for rowNum in range(2, sheet.max_row+1, 1):
                 orders = sheet.cell(rowNum, columns).value
-                # array.append(orders)
 
                 match condition:
                     case '==':
@@ -72,14 +71,16 @@ def createNewExcelWithData(titleList, saveNewExcelName):
             newExcelSheetTarget.cell(
                 index + 2, arrayDataIndex + 1).value = array[index][arrayDataIndex]
 
-    newExcel.save(f'{desk}'+saveNewExcelName)
+    newExcel.save(f'{fullPath}'+saveNewExcelName)
 
 
 def run(findOrders=1, condition='=='):
     che(findOrders, condition)
     createNewExcelWithData(titleList, saveNewExcelName)
-    # new.save('produceSales_update.xlsx')
+    # print(array)
 
+
+print(time.asctime(time.localtime(time.time())))
 
 run()
 
