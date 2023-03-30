@@ -80,8 +80,8 @@ def run(findOrders=1, condition='=='):
     # print(array)
 
 
-print(time.asctime(time.localtime(time.time())))
+# print(time.asctime(time.localtime(time.time())))
 
-run()
+# run()
 
-print(time.asctime(time.localtime(time.time())))
+# print(time.asctime(time.localtime(time.time())))

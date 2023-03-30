@@ -3,6 +3,7 @@ import openpyxl
 import os
 import time
 import xlrd
+import datetime
 
 # Save Path
 path = 'Desktop'
@@ -30,44 +31,45 @@ if (newestXLS.replace(downLoadPath, '').split('.')[1] != 'xls'):
     print('fail')
     exit()
 
-
 # Names
-newFileName = time.asctime(time.localtime(
-    time.time())).replace(' ', '').replace(':', '')
 loadFileName = 'rafagogorafa154_ShoplineCustomerReport_20230327173920.xls'
 
 # Load xls file
 data = xlrd.open_workbook(newestXLS)
-table = data.sheets()[0]
+tables = data.sheets()[0]
 
 # title
-titleList = ['顧客 ID', '全名', '手機號碼', '電郵', '訂單數', '累積金額', '最後登入時間', '會員級別']
+titleList = ['顧客 ID', '全名', '手機號碼', '電郵', '訂單數',
+             '累積金額', '最後登入時間', '會員級別', 'SEND MAIL']
+
+newFileName = str(datetime.date.today()).replace('-', '')
 
 
-def getRow(condition='==', findOrders=1):
+def getRow(condition='=', findOrders=1):
     arrays = []
-    for s in range(table.ncols):
-        if (table.cell(0, s).value == '訂單數'):
-            for a in range(2, table.nrows):
-                orders = table.cell(a, s).value
-                print(type(orders))
-                print(orders <= findOrders)
-                match condition:
-                    case '==':
-                        if (orders == findOrders):
-                            arrays.append(a)
-                    case '>':
-                        if (orders > findOrders):
-                            arrays.append(a)
-                    case '>=':
-                        if (orders >= findOrders):
-                            arrays.append(a)
-                    case '<':
-                        if (orders < findOrders and orders != 0):
-                            arrays.append(a)
-                    case '<=':
-                        if (orders <= findOrders and orders != 0):
-                            arrays.append(a)
+    for s in range(tables.ncols):
+        if (tables.cell(0, s).value == '訂單數'):
+            for a in range(1, tables.nrows):
+                orders = tables.cell(a, s).value
+
+                if (orders != ''):
+
+                    match condition:
+                        case '=':
+                            if (orders == findOrders):
+                                arrays.append(a)
+                        case '>':
+                            if (orders > findOrders):
+                                arrays.append(a)
+                        case '>=':
+                            if (orders >= findOrders):
+                                arrays.append(a)
+                        case '<':
+                            if (orders < findOrders and orders != 0):
+                                arrays.append(a)
+                        case '<=':
+                            if (orders <= findOrders and orders != 0):
+                                arrays.append(a)
 
     return arrays
 
@@ -78,17 +80,19 @@ def datas(arrays):
     for a in range(len(arrays)):
         ass = []
         for x in range(len(titleList)):
-            for s in range(table.ncols):
-                if (table.cell(0, s).value == titleList[x]):
+            for s in range(tables.ncols):
+                if (tables.cell(0, s).value == titleList[x]):
 
-                    ass.append(table.cell(arrays[a], s).value)
+                    ass.append(tables.cell(arrays[a], s).value)
 
         array.append(ass)
 
     return array
 
 
-def createNewExcelWithData(titleList, data, saveNewExcelName):
+def createNewExcelWithData(data, types=''):
+
+    saveNewExcelName = f'{newFileName}_{types}'
     newExcel = openpyxl.Workbook()
     newExcel.create_sheet("users", 0)
     newExcelSheetTarget = newExcel.worksheets[0]
@@ -101,8 +105,11 @@ def createNewExcelWithData(titleList, data, saveNewExcelName):
             newExcelSheetTarget.cell(
                 index + 2, arrayDataIndex + 1).value = data[index][arrayDataIndex]
 
-    newExcel.save(f'{fullPath}'+saveNewExcelName)
+    newExcel.save(f'{fullPath}' + saveNewExcelName + '.xlsx')
 
 
-createNewExcelWithData(titleList, datas(
-    getRow(condition='<', findOrders=1)), newFileName + '.xlsx')
+# createNewExcelWithData(condition='=', findOrders=1, types='one_order')
+
+
+def getExcelData(condition='=', findOrders=1):
+    return datas(getRow(condition=condition, findOrders=findOrders))

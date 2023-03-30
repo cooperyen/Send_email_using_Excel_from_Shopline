@@ -1,8 +1,9 @@
-import os
-desk = os.path.join(os.path.expanduser("~"), 'Desktop') + '\\'
-saveNewExcelName = 'new_excel.xlsx'
 
-a = f'{desk}'+saveNewExcelName
+import time
+import datetime
 
-print(a)
+a = time.asctime(time.localtime(
+    time.time())).replace(' ', '').replace(':', '')
+
+print(f'{str(datetime.date.today())}_one_order'.replace('-', ''))
 # 'C:\\Users\\admin\\Desktop\\'

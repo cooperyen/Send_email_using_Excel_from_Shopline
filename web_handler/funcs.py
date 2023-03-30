@@ -6,5 +6,5 @@ def wait():
     return sleep(random.randrange(2, 5))
 
 
-def waitWithSec(sec):
+def waitWithSec(sec=1.5):
     return sleep(sec)
