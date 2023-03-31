@@ -1,5 +1,3 @@
-
-
 import pyperclip as pc
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.keys import Keys
@@ -11,118 +9,302 @@ from web_handler.funcs import waitWithSec
 from web_handler.webdriver_setting import driver, driverURL
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
-import excel
+import os
 import time
 from datetime import datetime as date
-from xlrdtest import getExcelData, createNewExcelWithData
+from excel_handler.xlrdtest import getExcelData, createNewExcelWithData
 from email_handler.send_email import send_template_message
 
-# # ** (1). automatically open chrome and login as a user
-# createChrome()
+
+# excelData = getExcelData(condition='=', findOrders=1)
+
+# path = 'Downloads'
+# fullPath = os.path.join(os.path.expanduser("~"), path) + '\\'
 
 
-# # ** (2). control (1) and go to admin page
-driver = driver()
-# driver.maximize_window()
-# time.sleep(2)
-# driver.get(driverURL)
-# time.sleep(2)
+# def checkDownloadIsAvailable(driver):
+#     time.sleep(1)
+#     status = elementTarget(driver,
+#                            '//table//tr/td/div[@ng-class="getLabelClass(job.status)"]', By.XPATH).text
+#     length = len(os.listdir(fullPath))
+#     print(length)
+
+#     def checkIsDownloaded():
+#         checkLength = len(os.listdir(fullPath))
+#         print(f'check length {checkLength}')
+#         waitWithSec(10)
+#         if (checkLength > length):
+#             driver.close()
+#         else:
+#             checkIsDownloaded()
+
+#     if (status == '執行完成'):
+#         elementTarget(driver,
+#                       '//table//tr/td/div[@ng-click="getResultFiles(job.options.files_s3_url, job.name)"]', By.XPATH).click()
+
+#         checkIsDownloaded()
+
+#     else:
+#         print('not yet')
+#         driver.refresh()
+#         checkDownloadIsAvailable(driver)
 
 
-excelData = getExcelData(condition='=', findOrders=1)
-tag = 'only_one_order_230330'
+# def inputAndSaveTags(tag, driver):
+#     createChrome()
+#     driver = driver()
+#     USERURL = 'https://admin.shoplineapp.com/admin/rafagogorafa154/users/'
+
+#     def inputAndSaveTag():
+
+#         remark = elementTarget(
+#             driver, '//textarea[@placeholder="請輸入顧客備註"]', By.XPATH)
+
+#         remark.click()
+#         waitWithSec(0.5)
+#         remark.send_keys(Keys.CONTROL, 'a')
+#         waitWithSec(0.5)
+#         remark.send_keys(text)
+#         elementTarget(
+#             driver, '//div[@ng-if="editAccess()"]/a[@ng-click="save()"]', By.XPATH).click()
+
+#     for i in excelData:
+#         driver.get(USERURL+i[0])
+#         waitWithSec()
+
+#         try:
+#             text = elementTarget(
+#                 driver, '//p[@ng-bind-html="user.memo"]', By.XPATH).text + f'.{tag}'
+
+#             elementTarget(
+#                 driver, '//a[@ng-click="edit()"]', By.XPATH).click()
+
+#             inputAndSaveTag()
+
+#         except NoSuchElementException:
+#             text = tag
+#             inputAndSaveTag()
+
+#     driver.close()
 
 
-def checkDownloadIsAvailable(driver):
-    time.sleep(1)
-    status = elementTarget(driver,
-                           '//table//tr/td/div[@ng-class="getLabelClass(job.status)"]', By.XPATH).text
+# def getAllCustomerData(driver):
 
-    if (status == '執行完成'):
-        elementTarget(driver,
-                      '//table//tr/td/div[@ng-click="getResultFiles(job.options.files_s3_url, job.name)"]', By.XPATH).click()
-    else:
-        print('not yet')
-        driver.refresh()
-        checkDownloadIsAvailable(driver)
+#     createChrome()
+#     driver = driver()
+#     driver.maximize_window()
+#     time.sleep(2)
+#     driver.get(driverURL)
+
+#     # export user data
+#     exportUserData = ['//div[@data-e2e-id="sidebar_customer_management_menu"]',
+#                       '//a[@data-e2e-id="sidebar_customer_management_submenu_users"]',
+#                       '//a[@ng-click="showExportPicker()"]',
+#                       '//div[@class="option-report"]/input[@name="allCustomers"]',
+#                       '//div/a[@ng-click="onSelectAllFields()"]',
+#                       '//button[@ng-click="export()"]'
+#                       ]
+
+#     for i in exportUserData:
+#         elementTarget(driver, f'{i}', By.XPATH).click()
+
+#     # download
+#     elementTarget(driver,
+#                   '//div[@data-e2e-id="sidebar_report_and_analytis_menu"]', By.XPATH).click()
+#     elementTarget(driver,
+#                   '//a[@data-e2e-id="sidebar_report_and_analytis_submenu_jobs"]', By.XPATH).click()
+
+#     checkDownloadIsAvailable(driver)
 
 
-def inputAndSaveTags(tag):
-    USERURL = 'https://admin.shoplineapp.com/admin/rafagogorafa154/users/'
+# def sendingEmails(tag, template):
 
-    def inputAndSaveTag():
+#     for i in excelData:
+#         name = i[1]
+#         email = i[3]
+#         userData = {'name': name,
+#                     'email': email,
+#                     'template': template,
+#                     'tag': tag,
+#                     'subject': f'好久不見. {name}'
+#                     }
+#         send_template_message(userData)
+#         i.append(tag)
+
+
+# def run(tag='', template=''):
+
+#     if (template == '' or tag == ''):
+#         print('plz enter template name, it\'s coulden\'t be empty')
+#         exit()
+
+#     # first step get all user data
+#     getAllCustomerData(driver)
+
+#     # Second step. send email
+#     sendingEmails(tag, template)
+
+#     # Thrid step. set up each user's remark on shopline
+#     inputAndSaveTags(tag, driver)
+
+#     # Fourth step. creat excel at Desketop
+#     createNewExcelWithData(excelData, types=tag)
+
+
+# run(tag='auto_test_230331_1', template='one_order')
+
+
+# 汽車類別
+
+
+class AutoEmailingAndDownlaoding:
+    # 建構式
+    def __init__(self, dowloadPath, condition, findOrders, tag, template):
+
+        self.excelData = getExcelData(
+            condition=condition, findOrders=findOrders)
+        self.dowloadPath = dowloadPath
+        self.path = 'Downloads'
+        self.fullPath = os.path.join(os.path.expanduser("~"), self.path) + '\\'
+
+        self.tag = tag
+        self.template = template
+
+    # 方法(Method)
+    def checkIsDownloaded(self, beforeLength):
+        waitWithSec(sec=10)
+        currentLength = len(os.listdir(self.fullPath))
+        print(f'check current length is {currentLength}')
+
+        if (currentLength > beforeLength):
+            print('already downloaded. colsed driver')
+        else:
+            self.checkIsDownloaded(beforeLength)
+            print('download not yet, check it again.')
+
+    def checkDownloadIsAvailable(self, driver):
+        waitWithSec()
+        status = elementTarget(
+            driver, '//table//tr/td/div[@ng-class="getLabelClass(job.status)"]', By.XPATH).text
+        beforeLength = len(os.listdir(self.fullPath))
+        print(f'check before doucuments length is {beforeLength}')
+
+        if (status == '執行完成'):
+            elementTarget(
+                driver, '//table//tr/td/div[@ng-click="getResultFiles(job.options.files_s3_url, job.name)"]', By.XPATH).click()
+
+            self.checkIsDownloaded(beforeLength)
+
+        else:
+            print('download button not ready, will refresh after 10 sec.')
+            waitWithSec(sec=10)
+            driver.refresh()
+            self.checkDownloadIsAvailable()
+
+    def inputAndSaveTag_remarkController(self, text, driver):
 
         remark = elementTarget(
             driver, '//textarea[@placeholder="請輸入顧客備註"]', By.XPATH)
 
         remark.click()
-        waitWithSec(0.5)
+        waitWithSec()
         remark.send_keys(Keys.CONTROL, 'a')
-        waitWithSec(0.5)
+        waitWithSec()
         remark.send_keys(text)
         elementTarget(
             driver, '//div[@ng-if="editAccess()"]/a[@ng-click="save()"]', By.XPATH).click()
 
-    for i in excelData:
-        driver.get(USERURL+i[0])
+    def inputAndSaveTag(self, driver):
+        waitWithSec(sec=2)
+
+        USERURL = 'https://admin.shoplineapp.com/admin/rafagogorafa154/users/'
+
+        waitWithSec(sec=3)
+        for i in self.excelData:
+            driver.get(USERURL+i[0])
+            waitWithSec()
+
+            try:
+                text = elementTarget(
+                    driver, '//p[@ng-bind-html="user.memo"]', By.XPATH).text + f'.{self.tag}'
+
+                elementTarget(
+                    driver, '//a[@ng-click="edit()"]', By.XPATH).click()
+
+                self.inputAndSaveTag_remarkController(text)
+
+            except NoSuchElementException:
+                text = self.tag
+                self.inputAndSaveTag_remarkController(text)
+
+        waitWithSec(sec=2)
+        driver.close()
+
+    def getAllCustomerData(self, driver):
+
+        self.createChrome
+        waitWithSec(sec=2)
+        driver.maximize_window()
         waitWithSec()
-        text = elementTarget(
-            driver, '//p[@ng-bind-html="user.memo"]', By.XPATH).text + f'.{tag}'
-        try:
-            elementTarget(
-                driver, '//a[@ng-click="edit()"]', By.XPATH).click()
+        driver.get(driverURL)
 
-            inputAndSaveTag()
+        # export user data
+        exportUserData = ['//div[@data-e2e-id="sidebar_customer_management_menu"]',
+                          '//a[@data-e2e-id="sidebar_customer_management_submenu_users"]',
+                          '//a[@ng-click="showExportPicker()"]',
+                          '//div[@class="option-report"]/input[@name="allCustomers"]',
+                          '//div/a[@ng-click="onSelectAllFields()"]',
+                          '//button[@ng-click="export()"]'
+                          ]
 
-        except NoSuchElementException:
-            inputAndSaveTag()
-
-
-def getAllCustomerData(driver):
-    # export user data
-    exportUserData = ['//div[@data-e2e-id="sidebar_customer_management_menu"]',
-                      '//a[@data-e2e-id="sidebar_customer_management_submenu_users"]',
-                      '//a[@ng-click="showExportPicker()"]',
-                      '//div[@class="option-report"]/input[@name="allCustomers"]',
-                      '//div/a[@ng-click="onSelectAllFields()"]',
-                      '//button[@ng-click="export()"]'
-                      ]
-
-    for i in exportUserData:
-        elementTarget(driver, f'{i}', By.XPATH).click()
+        for i in exportUserData:
+            elementTarget(driver, f'{i}', By.XPATH).click()
 
         # download
+        waitWithSec(sec=10)
         elementTarget(driver,
                       '//div[@data-e2e-id="sidebar_report_and_analytis_menu"]', By.XPATH).click()
         elementTarget(driver,
                       '//a[@data-e2e-id="sidebar_report_and_analytis_submenu_jobs"]', By.XPATH).click()
 
-    checkDownloadIsAvailable(driver)
+        self.checkDownloadIsAvailable()
+
+    def sendingEmails(self):
+
+        for i in self.excelData:
+            name = i[1]
+            email = i[3]
+            userData = {'name': name,
+                        'email': email,
+                        'template': self.template,
+                        'tag': self.tag,
+                        'subject': f'好久不見. {name}'
+                        }
+            send_template_message(userData)
+            i.append(self.tag)
+
+    def run(self):
+        # self.getAllCustomerData()
+        # self.sendingEmails()
+        waitWithSec()
+
+        # self.inputAndSaveTag()
+        # createNewExcelWithData(self.excelData, types=self.tag)
 
 
-def sendingEmails():
-
-    for i in excelData:
-        name = i[1]
-        email = i[3]
-        userData = {'name': name,
-                    'email': email,
-                    'template': 'test',
-                    'tag': tag,
-                    'subject': f'subjectsubject {name}'
-                    }
-        send_template_message(userData)
-        i.append(tag)
+run = AutoEmailingAndDownlaoding("blue", '=', 1, 'auto_test_230331_2', 'test')
 
 
-# # first step get all user data
-# getAllCustomerData(driver)
+createChrome()
+driver = driver()
+print('1')
+print(driver)
+driver.close()
 
-# # Second step. send email
-# sendingEmails()
 
-# # Thrid step. set up remark
-# inputAndSaveTags(tag)
-
-# # Fourth step. creat excel
-# createNewExcelWithData(excelData, types=tag)
+waitWithSec(5)
+createChrome()
+driver = driver()
+print('2')
+print(driver)
+driver.close()

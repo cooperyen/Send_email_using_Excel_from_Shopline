@@ -6,19 +6,19 @@ APIKEY = 'key-7317a30a70357cf6309ab4fead46637d'
 DOMAIN = 'rafagotest.a2hosted.com'
 
 
-name = 'SHAO HSUAN YEN'
+# name = 'SHAO HSUAN YEN'
 
-userData = {'name': name,
-            'email': 'cooper.rafago@gmail.com',
-            'template': 'test',
-            'tag': 'only one order',
-            'subject': f'subjectsubject {name}'
-            }
+# userData = {'name': name,
+#             'email': 'cooper.rafago@gmail.com',
+#             'template': 'test',
+#             'tag': 'only one order',
+#             'subject': f'subjectsubject {name}'
+#             }
 
 
 def send_template_message(userData={'name', 'email', 'template', 'tag', 'subject'}):
 
-    if ('name' and 'templates' and 'email' and 'tag' and 'subject' in userData.keys()):
+    if ('name' and 'template' and 'email' and 'tag' and 'subject' in userData.keys()):
 
         return requests.post(
             f'https://api.mailgun.net/v3/{DOMAIN}/messages',
@@ -28,12 +28,9 @@ def send_template_message(userData={'name', 'email', 'template', 'tag', 'subject
                   'subject':  userData["subject"],
                   'template': userData['template'],
                   't:variables': json.dumps({'name': userData["name"]}),
-                  'o:tag': [userData["name"]]
+                  'o:tag': [userData["tag"]]
                   }
         )
 
     else:
-        print('fail')
-
-
-# send_template_message(userData)
+        print('send_template_message fail, lost keys')
