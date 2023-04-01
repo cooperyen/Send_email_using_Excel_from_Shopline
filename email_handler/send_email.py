@@ -1,7 +1,7 @@
 import requests
 import json
 
-FROM = 'RafaGo Rafa牽著吉娃娃 <cooper.rafago@gmail.com>'
+FROM = 'RafaGo Rafa牽著吉娃娃 <service.rafago@gmail.com>'
 APIKEY = 'key-7317a30a70357cf6309ab4fead46637d'
 DOMAIN = 'rafagotest.a2hosted.com'
 

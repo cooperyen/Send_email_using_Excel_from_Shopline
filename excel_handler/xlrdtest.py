@@ -45,34 +45,35 @@ titleList = ['顧客 ID', '全名', '手機號碼', '電郵', '訂單數',
 newFileName = str(datetime.date.today()).replace('-', '')
 
 
-# def getRow(condition='=', findOrders=1):
-#     arrays = []
-#     for s in range(tables.ncols):
-#         if (tables.cell(0, s).value == '訂單數'):
-#             for a in range(1, tables.nrows):
-#                 orders = tables.cell(a, s).value
-#                 if (orders != ''):
-
-#                     match condition:
-#                         case '=':
-#                             if (orders == findOrders):
-#                                 arrays.append(a)
-#                         case '>':
-#                             if (orders > findOrders):
-#                                 arrays.append(a)
-#                         case '>=':
-#                             if (orders >= findOrders):
-#                                 arrays.append(a)
-#                         case '<':
-#                             if (orders < findOrders and orders != 0):
-#                                 arrays.append(a)
-#                         case '<=':
-#                             if (orders <= findOrders and orders != 0):
-#                                 arrays.append(a)
-
-#     return arrays
-
 def getRow(condition='=', findOrders=1):
+    arrays = []
+    for s in range(tables.ncols):
+        if (tables.cell(0, s).value == '訂單數'):
+            for a in range(1, tables.nrows):
+                orders = tables.cell(a, s).value
+                if (orders != ''):
+
+                    match condition:
+                        case '=':
+                            if (orders == findOrders):
+                                arrays.append(a)
+                        case '>':
+                            if (orders > findOrders):
+                                arrays.append(a)
+                        case '>=':
+                            if (orders >= findOrders):
+                                arrays.append(a)
+                        case '<':
+                            if (orders < findOrders and orders != 0):
+                                arrays.append(a)
+                        case '<=':
+                            if (orders <= findOrders and orders != 0):
+                                arrays.append(a)
+
+    return arrays
+
+
+def getRows(condition='=', findOrders=1):
     arrays = []
     for s in range(tables.ncols):
         if (tables.cell(0, s).value == '電郵'):
@@ -136,5 +137,3 @@ def createNewExcelWithData(data, types=''):
 
 def getExcelData(condition='=', findOrders=1):
     return datas(getRow(condition=condition, findOrders=findOrders))
-
-

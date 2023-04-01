@@ -6,7 +6,7 @@ import pyautogui
 from web_handler.create_chrome import createChrome
 from web_handler.el_func import elementTarget
 from web_handler.funcs import waitWithSec
-from web_handler.webdriver_setting import driver, driverURL
+from web_handler.webdriver_setting import Driver, driverURL
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 import os
@@ -278,7 +278,7 @@ class AutoEmailingAndDownlaoding:
                         'email': email,
                         'template': self.template,
                         'tag': self.tag,
-                        'subject': f'好久不見. {name}'
+                        'subject': f'Hi {name}, 清明連假來囉,  準備好好和家人來一場輕旅行了嗎？'
                         }
             send_template_message(userData)
             i.append(self.tag)
@@ -292,19 +292,22 @@ class AutoEmailingAndDownlaoding:
         # createNewExcelWithData(self.excelData, types=self.tag)
 
 
-run = AutoEmailingAndDownlaoding("blue", '=', 1, 'auto_test_230331_2', 'test')
+def running(dowloadPath, condition, findOrders, tag, template):
+    run = AutoEmailingAndDownlaoding(
+        dowloadPath, condition, findOrders, tag, template)
+
+    # createChrome()
+    # driver = Driver().run()
+    # run.getAllCustomerData()
+    run.sendingEmails()
+    # driver.close()
+    # print(len(run.excelData))
+    # createChrome()
+    # driver = Driver().run()
+
+    # run.inputAndSaveTag(driver)
+    # createNewExcelWithData(run.excelData, types=run.tag)
+    # driver.close()
 
 
-createChrome()
-driver = driver()
-print('1')
-print(driver)
-driver.close()
-
-
-waitWithSec(5)
-createChrome()
-driver = driver()
-print('2')
-print(driver)
-driver.close()
+running("blue", '>=', 0, '0401_festival', '0401_festival')
