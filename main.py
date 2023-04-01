@@ -299,7 +299,7 @@ def running(dowloadPath, condition, findOrders, tag, template):
     # createChrome()
     # driver = Driver().run()
     # run.getAllCustomerData()
-    run.sendingEmails()
+    # run.sendingEmails()
     # driver.close()
     # print(len(run.excelData))
     # createChrome()
