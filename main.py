@@ -299,7 +299,7 @@ def running(dowloadPath, condition, findOrders, tag, template):
     # createChrome()
     # driver = Driver().run()
     # run.getAllCustomerData()
-    # run.sendingEmails()
+    run.sendingEmails()
     # driver.close()
     # print(len(run.excelData))
     # createChrome()
@@ -310,4 +310,4 @@ def running(dowloadPath, condition, findOrders, tag, template):
     # driver.close()
 
 
-running("blue", '>=', 0, '0401_festival', '0401_festival')
+running("blue", '=', 0, '0401_festival', '0401_festival')

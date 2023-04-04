@@ -45,7 +45,7 @@ titleList = ['顧客 ID', '全名', '手機號碼', '電郵', '訂單數',
 newFileName = str(datetime.date.today()).replace('-', '')
 
 
-def getRow(condition='=', findOrders=1):
+def getRows(condition='=', findOrders=1):
     arrays = []
     for s in range(tables.ncols):
         if (tables.cell(0, s).value == '訂單數'):
@@ -73,7 +73,7 @@ def getRow(condition='=', findOrders=1):
     return arrays
 
 
-def getRows(condition='=', findOrders=1):
+def getRow(condition='=', findOrders=1):
     arrays = []
     for s in range(tables.ncols):
         if (tables.cell(0, s).value == '電郵'):
