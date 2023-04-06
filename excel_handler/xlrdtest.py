@@ -73,32 +73,37 @@ def getRows(condition='=', findOrders=1):
     return arrays
 
 
-def getRow(condition='=', findOrders=1):
+def getRow(condition='', findOrders=''):
     arrays = []
-    for s in range(tables.ncols):
-        if (tables.cell(0, s).value == '電郵'):
-            for a in range(1, tables.nrows):
-                orders = tables.cell(a, s).value
-                if (orders != ''):
 
-                    match condition:
-                        case '=':
-                            if (orders == 'cooper.rafago@gmail.com'):
-                                arrays.append(a)
-                        case '>':
-                            if (orders > findOrders):
-                                arrays.append(a)
-                        case '>=':
-                            if (orders >= findOrders):
-                                arrays.append(a)
-                        case '<':
-                            if (orders < findOrders and orders != 0):
-                                arrays.append(a)
-                        case '<=':
-                            if (orders <= findOrders and orders != 0):
-                                arrays.append(a)
+    if (condition == '' or findOrders == ''):
+        return arrays
 
-    return arrays
+    else:
+        for s in range(tables.ncols):
+            if (tables.cell(0, s).value == '電郵'):
+                for a in range(1, tables.nrows):
+                    orders = tables.cell(a, s).value
+                    if (orders != ''):
+
+                        match condition:
+                            case '=':
+                                if (orders == 'cooper.rafago@gmail.com'):
+                                    arrays.append(a)
+                            case '>':
+                                if (orders > findOrders):
+                                    arrays.append(a)
+                            case '>=':
+                                if (orders >= findOrders):
+                                    arrays.append(a)
+                            case '<':
+                                if (orders < findOrders and orders != 0):
+                                    arrays.append(a)
+                            case '<=':
+                                if (orders <= findOrders and orders != 0):
+                                    arrays.append(a)
+
+        return arrays
 
 
 def datas(arrays):

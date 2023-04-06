@@ -16,147 +16,6 @@ from excel_handler.xlrdtest import getExcelData, createNewExcelWithData
 from email_handler.send_email import send_template_message
 
 
-# excelData = getExcelData(condition='=', findOrders=1)
-
-# path = 'Downloads'
-# fullPath = os.path.join(os.path.expanduser("~"), path) + '\\'
-
-
-# def checkDownloadIsAvailable(driver):
-#     time.sleep(1)
-#     status = elementTarget(driver,
-#                            '//table//tr/td/div[@ng-class="getLabelClass(job.status)"]', By.XPATH).text
-#     length = len(os.listdir(fullPath))
-#     print(length)
-
-#     def checkIsDownloaded():
-#         checkLength = len(os.listdir(fullPath))
-#         print(f'check length {checkLength}')
-#         waitWithSec(10)
-#         if (checkLength > length):
-#             driver.close()
-#         else:
-#             checkIsDownloaded()
-
-#     if (status == '執行完成'):
-#         elementTarget(driver,
-#                       '//table//tr/td/div[@ng-click="getResultFiles(job.options.files_s3_url, job.name)"]', By.XPATH).click()
-
-#         checkIsDownloaded()
-
-#     else:
-#         print('not yet')
-#         driver.refresh()
-#         checkDownloadIsAvailable(driver)
-
-
-# def inputAndSaveTags(tag, driver):
-#     createChrome()
-#     driver = driver()
-#     USERURL = 'https://admin.shoplineapp.com/admin/rafagogorafa154/users/'
-
-#     def inputAndSaveTag():
-
-#         remark = elementTarget(
-#             driver, '//textarea[@placeholder="請輸入顧客備註"]', By.XPATH)
-
-#         remark.click()
-#         waitWithSec(0.5)
-#         remark.send_keys(Keys.CONTROL, 'a')
-#         waitWithSec(0.5)
-#         remark.send_keys(text)
-#         elementTarget(
-#             driver, '//div[@ng-if="editAccess()"]/a[@ng-click="save()"]', By.XPATH).click()
-
-#     for i in excelData:
-#         driver.get(USERURL+i[0])
-#         waitWithSec()
-
-#         try:
-#             text = elementTarget(
-#                 driver, '//p[@ng-bind-html="user.memo"]', By.XPATH).text + f'.{tag}'
-
-#             elementTarget(
-#                 driver, '//a[@ng-click="edit()"]', By.XPATH).click()
-
-#             inputAndSaveTag()
-
-#         except NoSuchElementException:
-#             text = tag
-#             inputAndSaveTag()
-
-#     driver.close()
-
-
-# def getAllCustomerData(driver):
-
-#     createChrome()
-#     driver = driver()
-#     driver.maximize_window()
-#     time.sleep(2)
-#     driver.get(driverURL)
-
-#     # export user data
-#     exportUserData = ['//div[@data-e2e-id="sidebar_customer_management_menu"]',
-#                       '//a[@data-e2e-id="sidebar_customer_management_submenu_users"]',
-#                       '//a[@ng-click="showExportPicker()"]',
-#                       '//div[@class="option-report"]/input[@name="allCustomers"]',
-#                       '//div/a[@ng-click="onSelectAllFields()"]',
-#                       '//button[@ng-click="export()"]'
-#                       ]
-
-#     for i in exportUserData:
-#         elementTarget(driver, f'{i}', By.XPATH).click()
-
-#     # download
-#     elementTarget(driver,
-#                   '//div[@data-e2e-id="sidebar_report_and_analytis_menu"]', By.XPATH).click()
-#     elementTarget(driver,
-#                   '//a[@data-e2e-id="sidebar_report_and_analytis_submenu_jobs"]', By.XPATH).click()
-
-#     checkDownloadIsAvailable(driver)
-
-
-# def sendingEmails(tag, template):
-
-#     for i in excelData:
-#         name = i[1]
-#         email = i[3]
-#         userData = {'name': name,
-#                     'email': email,
-#                     'template': template,
-#                     'tag': tag,
-#                     'subject': f'好久不見. {name}'
-#                     }
-#         send_template_message(userData)
-#         i.append(tag)
-
-
-# def run(tag='', template=''):
-
-#     if (template == '' or tag == ''):
-#         print('plz enter template name, it\'s coulden\'t be empty')
-#         exit()
-
-#     # first step get all user data
-#     getAllCustomerData(driver)
-
-#     # Second step. send email
-#     sendingEmails(tag, template)
-
-#     # Thrid step. set up each user's remark on shopline
-#     inputAndSaveTags(tag, driver)
-
-#     # Fourth step. creat excel at Desketop
-#     createNewExcelWithData(excelData, types=tag)
-
-
-# run(tag='auto_test_230331_1', template='one_order')
-
-
-# 汽車類別
-
-
 class AutoEmailingAndDownlaoding:
     # 建構式
     def __init__(self, dowloadPath, condition, findOrders, tag, template):
@@ -169,37 +28,43 @@ class AutoEmailingAndDownlaoding:
 
         self.tag = tag
         self.template = template
+        self.longWaitSec = 10
+        self.reloadDownlaodPageSec = 20
 
     # 方法(Method)
     def checkIsDownloaded(self, beforeLength):
-        waitWithSec(sec=10)
         currentLength = len(os.listdir(self.fullPath))
-        print(f'check current length is {currentLength}')
+        print(f'Note : Starting to check whether the download is complete')
+        print(f'Note : Current the number of files is : {currentLength}')
 
         if (currentLength > beforeLength):
-            print('already downloaded. colsed driver')
+            print('Note : Already downloaded. close processing')
         else:
+            print(
+                f'Note : The download has not completed, check again after {self.longWaitSec} sec.')
+            waitWithSec(sec=self.longWaitSec)
             self.checkIsDownloaded(beforeLength)
-            print('download not yet, check it again.')
 
     def checkDownloadIsAvailable(self, driver):
         waitWithSec()
         status = elementTarget(
             driver, '//table//tr/td/div[@ng-class="getLabelClass(job.status)"]', By.XPATH).text
         beforeLength = len(os.listdir(self.fullPath))
-        print(f'check before doucuments length is {beforeLength}')
 
         if (status == '執行完成'):
+            print(
+                f'Note : Checking the number of files before downloading is {beforeLength}')
             elementTarget(
                 driver, '//table//tr/td/div[@ng-click="getResultFiles(job.options.files_s3_url, job.name)"]', By.XPATH).click()
 
             self.checkIsDownloaded(beforeLength)
 
         else:
-            print('download button not ready, will refresh after 10 sec.')
-            waitWithSec(sec=10)
+            print(
+                f'The download button not ready, will refresh page after {self.reloadDownlaodPageSec} sec.')
+            waitWithSec(sec=self.reloadDownlaodPageSec)
             driver.refresh()
-            self.checkDownloadIsAvailable()
+            self.checkDownloadIsAvailable(driver)
 
     def inputAndSaveTag_remarkController(self, text, driver):
 
@@ -242,8 +107,6 @@ class AutoEmailingAndDownlaoding:
 
     def getAllCustomerData(self, driver):
 
-        self.createChrome
-        waitWithSec(sec=2)
         driver.maximize_window()
         waitWithSec()
         driver.get(driverURL)
@@ -260,14 +123,18 @@ class AutoEmailingAndDownlaoding:
         for i in exportUserData:
             elementTarget(driver, f'{i}', By.XPATH).click()
 
+        print(
+            f'Note : Already Export file. will processing download file after {self.longWaitSec} sec.')
+
         # download
-        waitWithSec(sec=10)
+        waitWithSec(sec=self.longWaitSec)
+        print('Note : Starting download file processing.')
         elementTarget(driver,
                       '//div[@data-e2e-id="sidebar_report_and_analytis_menu"]', By.XPATH).click()
         elementTarget(driver,
                       '//a[@data-e2e-id="sidebar_report_and_analytis_submenu_jobs"]', By.XPATH).click()
 
-        self.checkDownloadIsAvailable()
+        self.checkDownloadIsAvailable(driver)
 
     def sendingEmails(self):
 
@@ -283,23 +150,21 @@ class AutoEmailingAndDownlaoding:
             send_template_message(userData)
             i.append(self.tag)
 
-    def run(self):
-        # self.getAllCustomerData()
-        # self.sendingEmails()
-        waitWithSec()
-
-        # self.inputAndSaveTag()
-        # createNewExcelWithData(self.excelData, types=self.tag)
-
 
 def running(dowloadPath, condition, findOrders, tag, template):
     run = AutoEmailingAndDownlaoding(
         dowloadPath, condition, findOrders, tag, template)
 
-    # createChrome()
-    # driver = Driver().run()
-    # run.getAllCustomerData()
-    run.sendingEmails()
+    # setting chrome
+    print('Starting : Open chrome porcessing')
+    createChrome()
+    driver = Driver().run()
+    print('Done : Open chrome porcessing')
+
+    print('Starting : Get all customer data porcessing')
+    run.getAllCustomerData(driver)
+    print('Done : Get all customer data porcessing')
+    # run.sendingEmails()
     # driver.close()
     # print(len(run.excelData))
     # createChrome()
@@ -310,4 +175,4 @@ def running(dowloadPath, condition, findOrders, tag, template):
     # driver.close()
 
 
-running("blue", '=', 0, '0401_festival', '0401_festival')
+# running("blue", '=', 0, '0401_festival', '0401_festival')
