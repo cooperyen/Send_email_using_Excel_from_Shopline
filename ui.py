@@ -1,6 +1,8 @@
 import tkinter
 import tkinter.messagebox
 import customtkinter
+from main import running,AutoEmailingAndDownlaoding
+from web_handler.funcs import waitWithSec
 
 # Modes: "System" (standard), "Dark", "Light"
 customtkinter.set_appearance_mode("System")
@@ -11,7 +13,6 @@ customtkinter.set_default_color_theme("blue")
 class App(customtkinter.CTk):
     def __init__(self):
         super().__init__()
-
         # configure window
         self.title("CustomTkinter complex_example.py")
         self.geometry(f"{1100}x{580}")
@@ -93,10 +94,7 @@ class App(customtkinter.CTk):
         self.textbox = customtkinter.CTkTextbox(self, width=250)
         self.textbox.grid(row=0, column=1, padx=(
             20, 0), pady=(20, 0), sticky="nsew")
-        self.textbox.insert("0.0", "CTkTextbox\n\n" +
-                            "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.\n\n")
-        self.textbox.insert("0.0", "CTkTextbox\n\n" +
-                            "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.\n\n" * 10)
+
 
         # create tabview
         self.tabview = customtkinter.CTkTabview(self, width=250)
@@ -123,7 +121,16 @@ class App(customtkinter.CTk):
         self.label_tab_2.grid(row=0, column=0, padx=20, pady=20)
 
     def sidebar_button_event(self):
-        print("sidebar_button click")
+
+        run = AutoEmailingAndDownlaoding(self, 'C:/Program Files/Google/Chrome/Application/chrome.exe', '=', 0, '0407test', 'test')
+
+        # setting chrome
+        self.returnStatus('Starting : Open chrome porcessing')
+        waitWithSec()
+        run.sendingEmails()
+        self.returnStatus('Done : Open chrome porcessing')
+
+
 
     def change_appearance_mode_event(self, new_appearance_mode: str):
         customtkinter.set_appearance_mode(new_appearance_mode)
@@ -138,6 +145,7 @@ class App(customtkinter.CTk):
         print("CTkInputDialog:", dialog.get_input())
 
 
-if __name__ == "__main__":
-    app = App()
-    app.mainloop()
+    def returnStatus(self, value):
+        self.textbox.insert("0.0", f'{value}\n\n')
+        self.textbox.update()
+        print(value)

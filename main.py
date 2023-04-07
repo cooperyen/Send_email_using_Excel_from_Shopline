@@ -18,10 +18,12 @@ from email_handler.send_email import send_template_message
 
 class AutoEmailingAndDownlaoding:
     # 建構式
-    def __init__(self, dowloadPath, condition, findOrders, tag, template):
-
-        self.excelData = getExcelData(
-            condition=condition, findOrders=findOrders)
+    def __init__(self, uiApp, dowloadPath, condition, findOrders, tag, template):
+        self.uiApp = uiApp
+        self.condition = condition
+        self.findOrders = findOrders
+        # self.excelData = getExcelData(
+        #     condition=condition, findOrders=findOrders)
         self.dowloadPath = dowloadPath
         self.path = 'Downloads'
         self.fullPath = os.path.join(os.path.expanduser("~"), self.path) + '\\'
@@ -85,7 +87,9 @@ class AutoEmailingAndDownlaoding:
         USERURL = 'https://admin.shoplineapp.com/admin/rafagogorafa154/users/'
 
         waitWithSec(sec=3)
-        for i in self.excelData:
+        excelData = getExcelData(self.uiApp, condition=self.condition, findOrders=self.findOrders)
+
+        for i in excelData:
             driver.get(USERURL+i[0])
             waitWithSec()
 
@@ -138,32 +142,46 @@ class AutoEmailingAndDownlaoding:
 
     def sendingEmails(self):
 
-        for i in self.excelData:
-            name = i[1]
-            email = i[3]
-            userData = {'name': name,
-                        'email': email,
-                        'template': self.template,
-                        'tag': self.tag,
-                        'subject': f'Hi {name}, 清明連假來囉,  準備好好和家人來一場輕旅行了嗎？'
-                        }
-            send_template_message(userData)
-            i.append(self.tag)
+        excelData = getExcelData(self.uiApp, condition=self.condition, findOrders=self.findOrders)
+        
+        if(excelData == False):
+            print("False")
+
+        else:
+            for i in excelData:
+                name = i[1]
+                email = i[3]
+                userData = {'name': name,
+                            'email': email,
+                            'template': self.template,
+                            'tag': self.tag,
+                            'subject': f'Hi {name}, 清明連假來囉,  準備好好和家人來一場輕旅行了嗎？'
+                            }
+                send_template_message(userData)
+                i.append(self.tag)
+        
 
 
-def running(dowloadPath, condition, findOrders, tag, template):
-    run = AutoEmailingAndDownlaoding(
+def running(self, uiApp, dowloadPath, condition, findOrders, tag, template):
+    run = AutoEmailingAndDownlaoding(self,
         dowloadPath, condition, findOrders, tag, template)
 
+    
     # setting chrome
+    uiApp.textbox.insert("0.0", 'Starting : Open chrome porcessing\n\n')
     print('Starting : Open chrome porcessing')
-    createChrome()
+
+    waitWithSec(2)
+    createChrome(dowloadPath)
     driver = Driver().run()
+
+    uiApp.textbox.insert("0.0", 'Done : Open chrome porcessing\n\n')
     print('Done : Open chrome porcessing')
 
-    print('Starting : Get all customer data porcessing')
-    run.getAllCustomerData(driver)
-    print('Done : Get all customer data porcessing')
+    # print('Starting : Get all customer data porcessing')
+    # run.getAllCustomerData(driver)
+    # print('Done : Get all customer data porcessing')
+
     # run.sendingEmails()
     # driver.close()
     # print(len(run.excelData))

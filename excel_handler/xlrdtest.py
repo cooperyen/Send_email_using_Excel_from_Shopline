@@ -27,22 +27,25 @@ def newest(path, suffix=None):
 
 newestXLS = newest(downLoadPath)
 
-if (newestXLS.replace(downLoadPath, '').split('.')[1] != 'xls'):
-    print('newest doucument is not xls.')
-    exit()
+# if (newestXLS.replace(downLoadPath, '').split('.')[1] != 'xls'):
+#     print('newest doucument is not xls.')
+#     # exit()
+# else: 
+#     # Names
+#     print('newest doucument is xls.')
+#     loadFileName = 'rafagogorafa154_ShoplineCustomerReport_20230327173920.xls'
 
-# Names
-loadFileName = 'rafagogorafa154_ShoplineCustomerReport_20230327173920.xls'
-
-# Load xls file
-data = xlrd.open_workbook(newestXLS)
-tables = data.sheets()[0]
+#     # Load xls file
+#     data = xlrd.open_workbook(newestXLS)
+#     tables = data.sheets()[0]
 
 # title
 titleList = ['顧客 ID', '全名', '手機號碼', '電郵', '訂單數',
-             '累積金額', '最後登入時間', '會員級別', 'SEND MAIL']
+            '累積金額', '最後登入時間', '會員級別', 'SEND MAIL']
 
 newFileName = str(datetime.date.today()).replace('-', '')
+
+
 
 
 def getRows(condition='=', findOrders=1):
@@ -73,7 +76,7 @@ def getRows(condition='=', findOrders=1):
     return arrays
 
 
-def getRow(condition='', findOrders=''):
+def getRow(tables, condition='', findOrders=''):
     arrays = []
 
     if (condition == '' or findOrders == ''):
@@ -106,7 +109,7 @@ def getRow(condition='', findOrders=''):
         return arrays
 
 
-def datas(arrays):
+def datas(tables, arrays):
     array = []
 
     for a in range(len(arrays)):
@@ -140,5 +143,13 @@ def createNewExcelWithData(data, types=''):
     newExcel.save(f'{fullPath}' + saveNewExcelName + '.xlsx')
 
 
-def getExcelData(condition='=', findOrders=1):
-    return datas(getRow(condition=condition, findOrders=findOrders))
+def getExcelData(uiApp, condition='=', findOrders=1):
+    newestXLS = newest(downLoadPath)
+    data = xlrd.open_workbook(newestXLS)
+    tables = data.sheets()[0]
+    uiApp.returnStatus('fsdfsdfdsdsdffsdf')
+
+    if (newestXLS.replace(downLoadPath, '').split('.')[1] != 'xls'):
+        return False
+    else:
+        return datas(tables, getRow(tables, condition=condition, findOrders=findOrders))
