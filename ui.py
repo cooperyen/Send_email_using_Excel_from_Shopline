@@ -22,6 +22,29 @@ class App(customtkinter.CTk):
         self.grid_columnconfigure((2, 3), weight=0)
         self.grid_rowconfigure((0, 1, 2), weight=1)
 
+        self.datas = {
+            'downloadPath': {
+                'en': 'Browser download path',
+                'ch': '瀏覽器下載路徑',
+            },
+            'condition': {
+                'en': 'Condition',
+                'ch': '匹配條件',
+            },
+            'findOrders': {
+                'en': 'Find orders',
+                'ch': '匹配訂單數',
+            },
+            'tag': {
+                'en': 'Tag Name',
+                'ch': '標籤名稱',
+            },
+            'template': {
+                'en': 'Template Name',
+                'ch': '套版名稱',
+            },
+        }
+
         # create sidebar frame with widgets
         self.sidebar_frame = customtkinter.CTkFrame(
             self, width=140, corner_radius=0)
@@ -80,15 +103,19 @@ class App(customtkinter.CTk):
         # self.main_button_1.grid(row=3, column=3, padx=(
         #     20, 20), pady=(20, 20), sticky="nsew")
 
-        self.appearance_mode_labels = customtkinter.CTkLabel(
-            self.sidebar_frames, text="Appearance Mode:", anchor="w")
-        self.appearance_mode_labels.grid(
-            row=1, column=1)
+
+        
+
+        # self.appearance_mode_labels = customtkinter.CTkLabel(
+        #     self.sidebar_frames, text="Appearance Mode:", anchor="w")
+        # self.appearance_mode_labels.grid(
+        #     row=1, column=1,padx=20, pady=(10, 20))
 
         # self.label.place(relx=0.5, rely=0.5, anchor=tkinter.CENTER)
 
-        self.dataVlaue = customtkinter.CTkEntry(self.sidebar_frames, width=250)
-        self.dataVlaue.grid(row=1, column=2)
+        # self.dataVlaue = customtkinter.CTkEntry(self.sidebar_frames, width=250)
+        # self.dataVlaue.grid(row=1, column=2, pady=(10, 20))
+        # self.dataVlaue = customtkinter.CTkEntry(self.sidebar_frames, width=250).grid(row=1, column=2, pady=(10, 20))
 
         # create textbox
         self.textbox = customtkinter.CTkTextbox(self, width=250)
@@ -120,15 +147,37 @@ class App(customtkinter.CTk):
             self.tabview.tab("Tab 2"), text="CTkLabel on Tab 2")
         self.label_tab_2.grid(row=0, column=0, padx=20, pady=20)
 
+
+        self.labelsTitles()
+
+    def labelsTitles(self):
+        num = 1
+        for labels in self.datas :
+            customtkinter.CTkLabel(
+                self.sidebar_frames, text=f"{self.datas[labels]['en']}", anchor="w").grid(
+                row=num, column=1,padx=20, pady=(10, 20),sticky='w')
+            
+            globals()[f'uiLabel_{labels}'] = customtkinter.CTkEntry(self.sidebar_frames, width=250)
+            globals()[f'uiLabel_{labels}'].grid(row=num, column=2, pady=(10, 20))
+            print(f'uiLabel_{labels}')
+            num = num + 1
+        
+
+
+    def returnValues(saveJsonData, item):
+        result = saveJsonData[item]['value'] if 'value' in saveJsonData[item] else 'x'
+        print(result)
+        return result
+
     def sidebar_button_event(self):
+        # run = AutoEmailingAndDownlaoding(self, 'C:/Program Files/Google/Chrome/Application/chrome.exe', '=', 0, '0407test', 'test')
 
-        run = AutoEmailingAndDownlaoding(self, 'C:/Program Files/Google/Chrome/Application/chrome.exe', '=', 0, '0407test', 'test')
-
-        # setting chrome
-        self.returnStatus('Starting : Open chrome porcessing')
-        waitWithSec()
-        run.sendingEmails()
-        self.returnStatus('Done : Open chrome porcessing')
+        # # setting chrome
+        # self.returnStatus('Starting : Open chrome porcessing')
+        # waitWithSec()
+        # run.sendingEmails()
+        # self.returnStatus('Done : Open chrome porcessing')
+        print(globals()['uiLabel_downloadPath'].get())
 
 
 
