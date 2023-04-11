@@ -227,18 +227,29 @@ class App(customtkinter.CTk):
 
         tagBool = loooping( True if re.search(r"\W",self.datas['tag']['value']) == None else False, 'Tag have symbols, please remove and try again.')
 
+        arr = [
+            self.checkSettingOptionNotEmpty(),
+            pathCheckChrome(self.datas['downloadPath']['value']),
+            True if re.search(r"\W",self.datas['tag']['value']) == None else False
+        ]
 
+        
 
-        if(settingOptionBool and downloadPathBool and tagBool):
+        try:
+            int(self.datas['findOrders']['value'])
+            findOrdersBool = True
+        except:
+            findOrdersBool = loooping(False,'"Find orders" is not type of integer, please enter number and try again.')
 
-            try:
-                int(self.datas['findOrders']['value'])
-                findOrdersBool = True
-            except:
-                findOrdersBool = loooping(False,'"Find orders" is not type of integer, please enter number and try again.')
+        # if(settingOptionBool and downloadPathBool and tagBool):
+
+ 
+        print(arr)
+        while arr :
+            
 
    
-        if settingOptionBool and findOrdersBool and downloadPathBool:
+        if settingOptionBool and findOrdersBool and downloadPathBool and tagBool:
             self.returnStatus('Setting options saved.')
             JASON_HANDLER.writeJsonFile(self.datas)
 
