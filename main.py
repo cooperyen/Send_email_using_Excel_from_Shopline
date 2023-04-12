@@ -13,7 +13,7 @@ import os
 import time
 from datetime import datetime as date
 from excel_handler.xlrdtest import getExcelData, createNewExcelWithData
-from email_handler.send_email import send_template_message
+from email_handler.send_email import sendtemplateMessage
 
 
 class AutoEmailingAndDownlaoding:
@@ -26,24 +26,24 @@ class AutoEmailingAndDownlaoding:
         #     condition=condition, findOrders=findOrders)
         self.dowloadPath = dowloadPath
         self.path = 'Downloads'
-        self.fullPath = os.path.join(os.path.expanduser("~"), self.path) + '\\'
+        self.downloadFilePath = os.path.join(os.path.expanduser("~"), self.path) + '\\'
 
         self.tag = tag
         self.template = template
-        self.longWaitSec = 10
+        self.longWaitSec = 5
         self.reloadDownlaodPageSec = 20
 
     # 方法(Method)
     def checkIsDownloaded(self, beforeLength):
-        currentLength = len(os.listdir(self.fullPath))
-        print(f'Note : Starting to check whether the download is complete')
-        print(f'Note : Current the number of files is : {currentLength}')
+        currentLength = len(os.listdir(self.downloadFilePath))
+        self.uiApp.returnUiMessage(f'Starting to check whether the download is complete', 'Note')
+        self.uiApp.returnUiMessage(f'Current the number of files is : {currentLength}', 'Note')
 
         if (currentLength > beforeLength):
-            print('Note : Already downloaded. close processing')
+            self.uiApp.returnUiMessage('download completed. close processing', 'Note')
         else:
-            print(
-                f'Note : The download has not completed, check again after {self.longWaitSec} sec.')
+            self.uiApp.returnUiMessage(
+                f'The download has not completed, check again after {self.longWaitSec} sec.', 'Note')
             waitWithSec(sec=self.longWaitSec)
             self.checkIsDownloaded(beforeLength)
 
@@ -51,19 +51,20 @@ class AutoEmailingAndDownlaoding:
         waitWithSec()
         status = elementTarget(
             driver, '//table//tr/td/div[@ng-class="getLabelClass(job.status)"]', By.XPATH).text
-        beforeLength = len(os.listdir(self.fullPath))
+        beforeLength = len(os.listdir(self.downloadFilePath))
 
         if (status == '執行完成'):
-            print(
-                f'Note : Checking the number of files before downloading is {beforeLength}')
+            self.uiApp.returnUiMessage(
+                f'Checking the number of files before downloading is {beforeLength}', 'Note')
             elementTarget(
                 driver, '//table//tr/td/div[@ng-click="getResultFiles(job.options.files_s3_url, job.name)"]', By.XPATH).click()
 
+            waitWithSec(sec=3)
             self.checkIsDownloaded(beforeLength)
 
         else:
-            print(
-                f'The download button not ready, will refresh page after {self.reloadDownlaodPageSec} sec.')
+            self.uiApp.returnUiMessage(
+                f'The download button not ready, will refresh page after {self.reloadDownlaodPageSec} sec.', 'Note')
             waitWithSec(sec=self.reloadDownlaodPageSec)
             driver.refresh()
             self.checkDownloadIsAvailable(driver)
@@ -127,12 +128,12 @@ class AutoEmailingAndDownlaoding:
         for i in exportUserData:
             elementTarget(driver, f'{i}', By.XPATH).click()
 
-        print(
-            f'Note : Already Export file. will processing download file after {self.longWaitSec} sec.')
+        self.uiApp.returnUiMessage(
+            f'Already Export file. will processing download file after {self.longWaitSec} sec.', 'Note')
 
         # download
         waitWithSec(sec=self.longWaitSec)
-        print('Note : Starting download file processing.')
+        self.uiApp.returnUiMessage('Starting : Download file processing.')
         elementTarget(driver,
                       '//div[@data-e2e-id="sidebar_report_and_analytis_menu"]', By.XPATH).click()
         elementTarget(driver,
@@ -140,14 +141,11 @@ class AutoEmailingAndDownlaoding:
 
         self.checkDownloadIsAvailable(driver)
 
-    def sendingEmails(self):
+    def sendingEmails(self,uiApp):
 
-        excelData = getExcelData(self.uiApp, condition=self.condition, findOrders=self.findOrders)
+        excelData = self.excelData()
         
-        if(excelData == False):
-            print("False")
-
-        else:
+        if(excelData != False):
             for i in excelData:
                 name = i[1]
                 email = i[3]
@@ -157,9 +155,11 @@ class AutoEmailingAndDownlaoding:
                             'tag': self.tag,
                             'subject': f'Hi {name}, 清明連假來囉,  準備好好和家人來一場輕旅行了嗎？'
                             }
-                send_template_message(userData)
+                sendtemplateMessage(uiApp, userData)
                 i.append(self.tag)
-        
+
+    def excelData(self):
+        return getExcelData(self.uiApp, condition=self.condition, findOrders=self.findOrders)    
 
 
 def running(self, uiApp, dowloadPath, condition, findOrders, tag, template):

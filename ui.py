@@ -8,6 +8,9 @@ import json
 import os
 import time
 import re
+from excel_handler.xlrdtest import createNewExcelWithData
+from web_handler.create_chrome import createChrome
+from web_handler.webdriver_setting import Driver, driverURL
 
 # Modes: "System" (standard), "Dark", "Light"
 customtkinter.set_appearance_mode("System")
@@ -35,8 +38,8 @@ class App(customtkinter.CTk):
 
         # configure window.
         self.title("CustomTkinter complex_example.py")
-        self.geometry(f"{1100}x{580}")
-        self.minsize(1100, 580)
+        self.geometry(f"{1500}x{800}")
+        self.minsize(1500, 800)
 
         # configure grid layout (4x4).
         self.grid_columnconfigure(1, weight=1)
@@ -44,9 +47,9 @@ class App(customtkinter.CTk):
         self.grid_rowconfigure((0, 1, 2), weight=1)
 
         self.datas = {
-            'downloadPath': {
-                'en': 'Browser download path',
-                'ch': '瀏覽器下載路徑',
+            'chromePath': {
+                'en': 'Chrome path',
+                'ch': 'Chrome 路徑',
                 'info' : 'C:/Program Files/Google/Chrome/Application/chrome.exe',
                 'value':''
             },
@@ -89,7 +92,7 @@ class App(customtkinter.CTk):
         self.logo_label.grid(row=0, column=0, padx=20, pady=(20, 10))
 
         self.sidebar_button_1 = customtkinter.CTkButton(
-            self.sidebar_frame, command=self.sidebar_button_event)
+            self.sidebar_frame, command=self.saveBtnEvent)
         self.sidebar_button_1.configure(text='save')
         self.sidebar_button_1.grid(row=1, column=0, padx=20, pady=10)
 
@@ -110,12 +113,12 @@ class App(customtkinter.CTk):
 
     
         # create textbox
-        self.textbox = customtkinter.CTkTextbox(self, width=250,state='disabled')
-        self.textbox.grid(row=0, column=1, padx=(
-            20, 0), pady=(20, 20), sticky="nsew")
+        self.textbox = customtkinter.CTkTextbox(self, width=250, height=250, state='disabled')
+        self.textbox.grid(row=0, column=1, padx=(20, 20), pady=(20, 20), sticky="nsew")
         
         # configure color tag.
-        self.textbox.tag_config("wearing", foreground="#D05B5B")
+        self.textbox.tag_config("Warning", foreground="#D05B5B")
+        self.textbox.tag_config("Note", foreground="#B88347")
         self.textbox.tag_config("time", foreground="#8B8B8B")
         
 
@@ -123,15 +126,14 @@ class App(customtkinter.CTk):
 
         # create tabview
         self.tabview = customtkinter.CTkTabview(self, width=250)
-        self.tabview.grid(row=0, column=2, padx=(20, 0), pady=(20, 0), sticky="nsew")
+        self.tabview.grid(row=1, column=1, padx=(20, 20), pady=(0, 0), sticky="nsew")
         self.tabview.add("CTkTabview")
         self.tabview.add("Tab 2")
         self.tabview.add("Tab 3")
         self.tabview.tab("CTkTabview").grid_columnconfigure(0, weight=1)  # configure grid of individual tabs
         self.tabview.tab("Tab 2").grid_columnconfigure(0, weight=1)
 
-        self.optionmenu_1 = customtkinter.CTkOptionMenu(self.tabview.tab("CTkTabview"), dynamic_resizing=False,
-                                                        values=["Value 1", "Value 2", "Value Long Long Long"])
+        self.optionmenu_1 = customtkinter.CTkOptionMenu(self.tabview.tab("CTkTabview"), dynamic_resizing=False, values=["Value 1", "Value 2", "Value Long Long Long"])
         self.optionmenu_1.grid(row=0, column=0, padx=20, pady=(20, 10))
         self.combobox_1 = customtkinter.CTkComboBox(self.tabview.tab("CTkTabview"),
                                                     values=["Value 1", "Value 2", "Value Long....."])
@@ -142,7 +144,7 @@ class App(customtkinter.CTk):
             self.tabview.tab("Tab 2"), text="CTkLabel on Tab 2")
         self.label_tab_2.grid(row=0, column=0, padx=20, pady=20)
 
-        self.settingOptionAreaContent()
+        # self.settingOptionAreaContent()
 
 
    
@@ -151,17 +153,15 @@ class App(customtkinter.CTk):
         if (os.path.exists(JSON_FILE) == False):
             # self.writeJsonFile(self.datas)
             JASON_HANDLER.writeJsonFile(self.datas)
-       
+    
         saveJsonData = JASON_HANDLER.loadJasonFile()
   
         infoRowNum = 2
         mainRowNum = 1
-
         customtkinter.CTkLabel(
                 self.sidebar_frames, text='Setting options', font=customtkinter.CTkFont(size=16, weight="bold")).grid(
                 row=0, column=1,padx=20, pady=(20,5), sticky='w')
         
-
         for labels in self.datas :
             customtkinter.CTkLabel(
                 self.sidebar_frames, text=f"{self.datas[labels]['en']}", anchor="w").grid(
@@ -188,87 +188,70 @@ class App(customtkinter.CTk):
             infoRowNum = infoRowNum + 2
             mainRowNum = mainRowNum + 2
         
-    def returnValues(saveJsonData, item):
-        result = saveJsonData[item]['value'] if 'value' in saveJsonData[item] else 'x'
-        print(result)
-        return result
-
-    def sidebar_button_event(self):
+           
+    def saveSettingOptionToFile(self):
 
 
+        def checkSettingAllTrue(ary):
+            array = []
+            for i in range(len(ary)) :
+                array.append(ary[i]['bool'])
+            return all(array)
 
-        # for labels in self.datas :
-        #     if(globals()[f'__ui_labelsData_{labels}'].get() == '') :
-        #         exit()
-
-        #     self.datas[labels]['value'] = globals()[f'__ui_labelsData_{labels}'].get()
+        def checkSettingOptionNotEmpty():
+            array = []
+            for labels in self.datas :
+                array.append(self.datas[labels]['value'])
+                
+            return all(array)
         
-        # run = AutoEmailingAndDownlaoding(self, 'C:/Program Files/Google/Chrome/Application/chrome.exe', '=', 0, '0407test', 'test')
-
-        # # setting chrome
-        # self.returnStatus('Starting : Open chrome porcessing')
-        # waitWithSec()
-        # run.sendingEmails()
-        # self.returnStatus('Done : Open chrome porcessing')
-
-        def loooping(data, str):
-            if(data):
-                return True
-            else:
-                self.returnStatus(str,'wearing')
-                return False
-             
+        # append setting option value.
         for labels in self.datas :
             self.datas[labels]['value'] = globals()[f'__ui_labelsData_{labels}'].get()
 
-        settingOptionBool = loooping(self.checkSettingOptionNotEmpty(),'Setting options can\'t not be empty, please try again.')
-
-        downloadPathBool = loooping(pathCheckChrome(self.datas['downloadPath']['value']),'Chrome path not found, please check and try again.')
-
-        tagBool = loooping( True if re.search(r"\W",self.datas['tag']['value']) == None else False, 'Tag have symbols, please remove and try again.')
-
-        arr = [
-            self.checkSettingOptionNotEmpty(),
-            pathCheckChrome(self.datas['downloadPath']['value']),
-            True if re.search(r"\W",self.datas['tag']['value']) == None else False
-        ]
-
-        
-
+        # verify 'findOrders' is integer or not. 
         try:
             int(self.datas['findOrders']['value'])
             findOrdersBool = True
         except:
-            findOrdersBool = loooping(False,'"Find orders" is not type of integer, please enter number and try again.')
+            findOrdersBool = False
+        
+        # verify and Warning setting options.
+        verifySettingList = [
+            {
+                'title':'settingOption',
+                'text':'Setting options can\'t not be empty, please try again.',
+                'bool':checkSettingOptionNotEmpty()
+            },
+            {
+                'title':'chromePath',
+                'text':'Chrome path not found, please check and try again.',
+                'bool':pathCheckChrome(self.datas['chromePath']['value'])
+            },
+            {
+                'title':'tag',
+                'text':'Tag have symbols, please remove and try again.',
+                'bool':True if re.search(r"\W",self.datas['tag']['value']) == None else False
+            },
+            {
+                'title':'findOrders',
+                'text':'"Find orders" is not type of integer, make sure only input numbers without any character and symbols that try again.',
+                'bool':findOrdersBool
+            },
+        ]
 
-        # if(settingOptionBool and downloadPathBool and tagBool):
+        # Verifies that each option Boolean and displays a Warning message if FALSE.
+        for i in range(len(verifySettingList)):
+            if(verifySettingList[i]['bool'] == False):
+                self.returnUiWarningMessage(verifySettingList[i]['bool'],verifySettingList[i]['text'])
+                break
 
- 
-        print(arr)
-        while arr :
+        # if all options are True that save data to json.
+        if(checkSettingAllTrue(verifySettingList)):
+            self.returnUiMessage('Setting options saved.')
+            JASON_HANDLER.writeJsonFile(self.datas) 
+            return True
             
-
-   
-        if settingOptionBool and findOrdersBool and downloadPathBool and tagBool:
-            self.returnStatus('Setting options saved.')
-            JASON_HANDLER.writeJsonFile(self.datas)
-
-        # findOrdersBool = loooping(int(self.datas['findOrders']['value']),'Setting options can\'t not be empty, please try again.')
-
- 
-   
-        # if(self.checkSettingOptionNotEmpty()):
-        #     print('1213')
-        # else:
-        #     self.returnStatus('Setting options can\'t not be empty, please try again.')
-        # JASON_HANDLER.writeJsonFile(self.datas)
-
-    def checkSettingOptionNotEmpty(self):
-        array = []
-        for labels in self.datas :
-            array.append(self.datas[labels]['value'])
-            
-        return all(array)
 
     def change_appearance_mode_event(self, new_appearance_mode: str):
         customtkinter.set_appearance_mode(new_appearance_mode)
@@ -282,13 +265,54 @@ class App(customtkinter.CTk):
             text="Type in a number:", title="CTkInputDialog")
         print("CTkInputDialog:", dialog.get_input())
 
-
-    def returnStatus(self, value, tag=''):
-
+    def returnUiMessage(self, value, tag=''):
+        text = tag + ' : ' if tag != '' else ''
         self.textbox.configure(state='normal')
-        self.textbox.insert("0.0", f'\n{value}\n\n', tag)
+        self.textbox.insert("0.0", f'\n{text}{value}\n\n', tag)
         self.textbox.insert("0.0", f'{time.strftime("%m/%d %H:%M:%S", time.localtime())}', 'time')
         self.textbox.configure(state='disabled')
         self.textbox.update()
-        
         print(value)
+
+    def returnUiWarningMessage(self, data, str):
+            if(data):
+                return True
+            else:
+                self.returnUiMessage(str,'Warning')
+                return False
+            
+    def saveBtnEvent(self):
+        saveSettingOptionToFile = self.saveSettingOptionToFile()  
+
+        if(saveSettingOptionToFile):
+            saveJsonData = JASON_HANDLER.loadJasonFile()
+            
+            run = AutoEmailingAndDownlaoding(
+                self, 
+                saveJsonData['chromePath']['value'], 
+                saveJsonData['condition']['value'], 
+                saveJsonData['findOrders']['value'], 
+                saveJsonData['tag']['value'],
+                saveJsonData['template']['value']
+                )
+
+            self.returnUiMessage('starting process, please do not control you\'re computer before finish process.', 'Note')
+            self.returnUiMessage('starting process, please do not control you\'re computer before finish process.', 'Note')
+            self.returnUiMessage('Starting : Open chrome porcessing.')
+            createChrome(saveJsonData['chromePath']['value'])
+            driver = Driver().run()
+            self.returnUiMessage('Done : Open chrome porcessing.')
+
+            self.returnUiMessage('Starting : Get all customer data porcessing.')
+            run.getAllCustomerData(driver)
+            self.returnUiMessage('Done : Get all customer data porcessing.')
+
+            driver.close()
+            self.returnUiMessage('done, colse chrome porcessing.', 'Note')
+            # # setting chrome
+            # self.returnUiMessage('Starting : Open chrome porcessing')
+            # waitWithSec()
+            # run.sendingEmails(self)
+            # createNewExcelWithData(self,run.excelData(), types=run.tag)
+            # self.returnUiMessage('Done : Open chrome porcessing')
+

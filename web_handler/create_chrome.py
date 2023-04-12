@@ -11,11 +11,7 @@ def createChrome(chromePath):
     # chromePath = 'C:/Program Files/Google/Chrome/Application/chrome.exe'
     chromeUserLoginTemporaryData = 'C:/selenium/AutomationProfile'
     cmdCommand = f'"{chromePath}" --remote-debugging-port={port} --user-data-dir="{chromeUserLoginTemporaryData}"'
-
-    print(os.path.exists(chromePath))
-    # os.popen(cmdCommand)
-    
-    # wait()
+    os.popen(cmdCommand)
 
 def pathCheckChrome(chromePath):
     return os.path.exists(chromePath)

@@ -1,87 +1,26 @@
-import openpyxl
-from openpyxl.styles import Font
-import os
-import time
-
-path = 'Desktop'
-fullPath = os.path.join(os.path.expanduser("~"), path) + '\\'
-
-titleList = ['顧客 ID', '全名', '手機號碼', '電郵', '訂單數', '累積金額', '最後登入時間', '會員級別']
-saveNewExcelName = 'FDSFSDFDFDS.xlsx'
-OPEN = 'rafagogorafa154_ShoplineCustomerReport_20230327173920.xlsx'
-
-array = []
+import customtkinter
 
 
-def che(findOrders, condition):
-    wb = openpyxl.load_workbook(
-        OPEN)
-    sheet = wb.worksheets[0]
+class MyTabView(customtkinter.CTkTabview):
+    def __init__(self, master, **kwargs):
+        super().__init__(master, **kwargs)
 
-    for columns in range(1, sheet.max_column + 1, 1):
-        # for value in columns:
-        columName = sheet.cell(1, columns).value
+        # create tabs
+        self.add("tab 1")
+        self.add("tab 2")
 
-        if (columName == '訂單數'):
-
-            for rowNum in range(2, sheet.max_row+1, 1):
-                orders = sheet.cell(rowNum, columns).value
-
-                match condition:
-                    case '==':
-                        if (orders == findOrders):
-                            findData()
-                    case '>':
-                        if (orders > findOrders):
-                            findData()
-                    case '>=':
-                        if (orders >= findOrders):
-                            findData()
-                    case '<':
-                        if (orders < findOrders and orders != 0):
-                            findData()
-                    case '<=':
-                        if (orders <= findOrders and orders != 0):
-                            findData()
-
-        def findData():
-            arrays = []
-            for itemsTitle in range(len(titleList)):
-                for savecolumns in range(1, sheet.max_column + 1, 1):
-                    produceNames = sheet.cell(1, savecolumns).value
-                    # print(produceNames)
-                    if (titleList[itemsTitle] == produceNames):
-                        produceNamess = sheet.cell(
-                            rowNum, savecolumns).value
-                        arrays.append(produceNamess)
-                        # return arrays
-            array.append(arrays)
+        # add widgets on tabs
+        self.label = customtkinter.CTkLabel(master=self.tab("tab 1"))
+        self.label.grid(row=0, column=0, padx=20, pady=10)
 
 
-def createNewExcelWithData(titleList, saveNewExcelName):
-    newExcel = openpyxl.Workbook()
-    newExcel.create_sheet("users", 0)
-    newExcelSheetTarget = newExcel.worksheets[0]
+class App(customtkinter.CTk):
+    def __init__(self):
+        super().__init__()
 
-    for index in range(len(titleList)):
-        newExcelSheetTarget.cell(1, index + 1).value = titleList[index]
-
-    for index in range(len(array)):
-        for arrayDataIndex in range(len(array[index])):
-            newExcelSheetTarget.cell(
-                index + 2, arrayDataIndex + 1).value = array[index][arrayDataIndex]
-
-    newExcel.save(f'{fullPath}'+saveNewExcelName)
+        self.tab_view = MyTabView(master=self)
+        self.tab_view.grid(row=0, column=0, padx=20, pady=20)
 
 
-def run(findOrders=1, condition='=='):
-    che(findOrders, condition)
-    createNewExcelWithData(titleList, saveNewExcelName)
-    # print(array)
-
-
-# print(time.asctime(time.localtime(time.time())))
-
-# run()
-
-# print(time.asctime(time.localtime(time.time())))
+app = App()
+app.mainloop()
