@@ -13,7 +13,7 @@ import os
 import time
 from datetime import datetime as date
 from excel_handler.xlrdtest import getExcelData, createNewExcelWithData
-from email_handler.send_email import sendtemplateMessage
+from email_handler.send_email import EMAIL_HANDLER
 
 
 class AutoEmailingAndDownlaoding:
@@ -141,7 +141,7 @@ class AutoEmailingAndDownlaoding:
 
         self.checkDownloadIsAvailable(driver)
 
-    def sendingEmails(self,uiApp):
+    def sendingEmails(self, uiApp, saveJsonData):
 
         excelData = self.excelData()
         
@@ -155,42 +155,10 @@ class AutoEmailingAndDownlaoding:
                             'tag': self.tag,
                             'subject': f'Hi {name}, 清明連假來囉,  準備好好和家人來一場輕旅行了嗎？'
                             }
-                sendtemplateMessage(uiApp, userData)
+                email = EMAIL_HANDLER(saveJsonData)
+                email.sendtemplateMessage(uiApp, userData)
                 i.append(self.tag)
 
     def excelData(self):
         return getExcelData(self.uiApp, condition=self.condition, findOrders=self.findOrders)    
 
-
-def running(self, uiApp, dowloadPath, condition, findOrders, tag, template):
-    run = AutoEmailingAndDownlaoding(self,
-        dowloadPath, condition, findOrders, tag, template)
-
-    
-    # setting chrome
-    uiApp.textbox.insert("0.0", 'Starting : Open chrome porcessing\n\n')
-    print('Starting : Open chrome porcessing')
-
-    waitWithSec(2)
-    createChrome(dowloadPath)
-    driver = Driver().run()
-
-    uiApp.textbox.insert("0.0", 'Done : Open chrome porcessing\n\n')
-    print('Done : Open chrome porcessing')
-
-    # print('Starting : Get all customer data porcessing')
-    # run.getAllCustomerData(driver)
-    # print('Done : Get all customer data porcessing')
-
-    # run.sendingEmails()
-    # driver.close()
-    # print(len(run.excelData))
-    # createChrome()
-    # driver = Driver().run()
-
-    # run.inputAndSaveTag(driver)
-    # createNewExcelWithData(run.excelData, types=run.tag)
-    # driver.close()
-
-
-# running("blue", '=', 0, '0401_festival', '0401_festival')

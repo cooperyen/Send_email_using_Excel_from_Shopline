@@ -14,6 +14,7 @@ def createChrome(chromePath):
     os.popen(cmdCommand)
 
 def pathCheckChrome(chromePath):
+    # print(chromePath)
     return os.path.exists(chromePath)
 
 

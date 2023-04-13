@@ -92,21 +92,22 @@ def datas(tables, arrays):
     return array
 
 def createNewExcelWithData(uiApp, data, types=''):
-    saveNewExcelName = f'{newFileName}_{types}'
-    newExcel = openpyxl.Workbook()
-    newExcel.create_sheet("users", 0)
-    newExcelSheetTarget = newExcel.worksheets[0]
+    print(data)
+    # saveNewExcelName = f'{newFileName}_{types}'
+    # newExcel = openpyxl.Workbook()
+    # newExcel.create_sheet("users", 0)
+    # newExcelSheetTarget = newExcel.worksheets[0]
 
-    for index in range(len(titleList)):
-        newExcelSheetTarget.cell(1, index + 1).value = titleList[index]
+    # for index in range(len(titleList)):
+    #     newExcelSheetTarget.cell(1, index + 1).value = titleList[index]
 
-    for index in range(len(data)):
-        for arrayDataIndex in range(len(data[index])):
-            newExcelSheetTarget.cell(
-                index + 2, arrayDataIndex + 1).value = data[index][arrayDataIndex]
+    # for index in range(len(data)):
+    #     for arrayDataIndex in range(len(data[index])):
+    #         newExcelSheetTarget.cell(
+    #             index + 2, arrayDataIndex + 1).value = data[index][arrayDataIndex]
 
-    newExcel.save(f'{saveFliePath}' + saveNewExcelName + '.xlsx')
-    uiApp.returnUiMessage(f'The file "{saveNewExcelName}" is saved at {saveFliePath}')
+    # newExcel.save(f'{saveFliePath}' + saveNewExcelName + '.xlsx')
+    # uiApp.returnUiMessage(f'The file "{saveNewExcelName}" is saved at {saveFliePath}')
 
 def getExcelData(uiApp, condition='=', findOrders=1):
     newestXLS = newest(downLoadPath)
