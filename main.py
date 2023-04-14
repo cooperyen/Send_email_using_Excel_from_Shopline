@@ -1,18 +1,15 @@
-import pyperclip as pc
-from selenium.common.exceptions import NoSuchElementException
-from selenium.webdriver.common.keys import Keys
-import string
-import pyautogui
-from web_handler.create_chrome import createChrome
-from web_handler.el_func import elementTarget
-from web_handler.funcs import waitWithSec
-from web_handler.webdriver_setting import Driver, driverURL
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
 import os
 import time
+import win32com.client as win32
+from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.common.keys import Keys
+from web_handler.el_func import elementTarget
+from web_handler.funcs import waitWithSec
+from web_handler.webdriver_setting import driverURL
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
 from datetime import datetime as date
-from excel_handler.xlrdtest import getExcelData, createNewExcelWithData
+from excel_handler.xlrdtest import getExcelData, newest, downLoadPath
 from email_handler.send_email import EMAIL_HANDLER
 
 
@@ -34,12 +31,31 @@ class AutoEmailingAndDownlaoding:
         self.reloadDownlaodPageSec = 20
 
     # 方法(Method)
+    def xlsToxlsx(self):
+        files = newest(downLoadPath)
+        fileName = os.path.basename(files).split('.')[0]
+        strTime = time.strftime("%m%d%H%M%S", time.localtime())
+        newFileName = f'{fileName}_{strTime}'
+
+        # save as xlsx.
+        excel = win32.gencache.EnsureDispatch('Excel.Application') #調用win32模塊
+        wb = excel.Workbooks.Open(files) #打開需要轉換的文件
+        wb.SaveAs(f'{downLoadPath}{newFileName}.xlsx', FileFormat = 51) #文件另存爲xlsx擴展名的文件
+        wb.Close()
+        excel.Application.Quit()
+
+        # remove as xls.
+        removeFilePath = os.path.join(downLoadPath, f'{fileName}.xls')  
+        os.remove(removeFilePath)
+
+
     def checkIsDownloaded(self, beforeLength):
         currentLength = len(os.listdir(self.downloadFilePath))
         self.uiApp.returnUiMessage(f'Starting to check whether the download is complete', 'Note')
         self.uiApp.returnUiMessage(f'Current the number of files is : {currentLength}', 'Note')
 
         if (currentLength > beforeLength):
+            self.xlsToxlsx()
             self.uiApp.returnUiMessage('download completed. close processing', 'Note')
         else:
             self.uiApp.returnUiMessage(
@@ -116,20 +132,20 @@ class AutoEmailingAndDownlaoding:
         waitWithSec()
         driver.get(driverURL)
 
-        # export user data
-        exportUserData = ['//div[@data-e2e-id="sidebar_customer_management_menu"]',
-                          '//a[@data-e2e-id="sidebar_customer_management_submenu_users"]',
-                          '//a[@ng-click="showExportPicker()"]',
-                          '//div[@class="option-report"]/input[@name="allCustomers"]',
-                          '//div/a[@ng-click="onSelectAllFields()"]',
-                          '//button[@ng-click="export()"]'
-                          ]
+        # # export user data
+        # exportUserData = ['//div[@data-e2e-id="sidebar_customer_management_menu"]',
+        #                   '//a[@data-e2e-id="sidebar_customer_management_submenu_users"]',
+        #                   '//a[@ng-click="showExportPicker()"]',
+        #                   '//div[@class="option-report"]/input[@name="allCustomers"]',
+        #                   '//div/a[@ng-click="onSelectAllFields()"]',
+        #                   '//button[@ng-click="export()"]'
+        #                   ]
 
-        for i in exportUserData:
-            elementTarget(driver, f'{i}', By.XPATH).click()
+        # for i in exportUserData:
+        #     elementTarget(driver, f'{i}', By.XPATH).click()
 
-        self.uiApp.returnUiMessage(
-            f'Already Export file. will processing download file after {self.longWaitSec} sec.', 'Note')
+        # self.uiApp.returnUiMessage(
+        #     f'Already Export file. will processing download file after {self.longWaitSec} sec.', 'Note')
 
         # download
         waitWithSec(sec=self.longWaitSec)
@@ -141,11 +157,13 @@ class AutoEmailingAndDownlaoding:
 
         self.checkDownloadIsAvailable(driver)
 
+
     def sendingEmails(self, uiApp, saveJsonData):
 
         excelData = self.excelData()
         
         if(excelData != False):
+            state = True
             for i in excelData:
                 name = i[1]
                 email = i[3]
@@ -156,8 +174,13 @@ class AutoEmailingAndDownlaoding:
                             'subject': f'Hi {name}, 清明連假來囉,  準備好好和家人來一場輕旅行了嗎？'
                             }
                 email = EMAIL_HANDLER(saveJsonData)
-                email.sendtemplateMessage(uiApp, userData)
+                sendState = email.sendtemplateMessage(uiApp, userData)
                 i.append(self.tag)
+                if(sendState == False):
+                    state = False
+                    break
+
+            return state
 
     def excelData(self):
         return getExcelData(self.uiApp, condition=self.condition, findOrders=self.findOrders)    

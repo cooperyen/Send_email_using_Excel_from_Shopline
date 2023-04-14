@@ -156,16 +156,20 @@ class App(customtkinter.CTk):
     def mainButtons(self):
         ary = [
             {
-                'command': self.saveSettingOptionToFile,
+                'command': self.saveSettingOptionToFileBTN,
                 'text' : 'save'
             },
             {
-                'command': self.downloadUserData,
+                'command': self.downloadUserDataBTN,
                 'text' : 'download user data'
             },
             {
                 'command': self.sendEmailBTN,
                 'text' : 'send email'
+            },
+            {
+                'command': self.saveToExcelBTN,
+                'text' : 'save data to excel'
             },
             {
                 'command': self.fullProcessBTN,
@@ -234,7 +238,6 @@ class App(customtkinter.CTk):
         emailOption(tableView_tab_1,self.tabName_email)
         emailOption(tableView_tab_2,self.tabName_setting)
         emailOption(tableView_tab_3,self.tabName_mailgun)
-
                 
     def change_appearance_mode_event(self, new_appearance_mode: str):
         customtkinter.set_appearance_mode(new_appearance_mode)
@@ -256,76 +259,61 @@ class App(customtkinter.CTk):
         self.textbox.configure(state='disabled')
         self.textbox.update()
         print(value)
-
-    def returnUiWarningMessage(self, data, str):
-            if(data):
-                return True
-            else:
-                self.returnUiMessage(str,'Warning')
-                return False
             
     
     # BTN funs.
     def fullProcessBTN(self):
-        saveSettingOptionToFile = self.saveSettingOptionToFile()  
+        saveSettingOptionToFile = self.saveSettingOptionToFileFunc()  
 
         if(saveSettingOptionToFile):
             saveJsonData = JASON_HANDLER.loadJasonFile()
-            
-            run = AutoEmailingAndDownlaoding(
-                self, 
-                saveJsonData[self.tabName_setting]['chromePath']['value'], 
-                saveJsonData[self.tabName_email]['condition']['value'], 
-                saveJsonData[self.tabName_email]['findOrders']['value'], 
-                saveJsonData[self.tabName_email]['tag']['value'],
-                saveJsonData[self.tabName_email]['template']['value']
-                )
+            run = self.runSetting()
 
             # start
             self.returnUiMessage('starting process, please do not control you\'re computer before finish process.', 'Note')
             self.returnUiMessage('starting process, please do not control you\'re computer before finish process.', 'Note')
 
             # opean chrome
-            self.returnUiMessage('Starting : Open chrome porcessing.')
-            createChrome(saveJsonData[self.tabName_setting]['chromePath']['value'])
-            driver = Driver().run()
-            self.returnUiMessage('Done : Open chrome porcessing.')
+            self.downloadUserDataFunc()
 
-            # get and download user data from shopline
-            self.returnUiMessage('Starting : Get all customer data porcessing.')
-            run.getAllCustomerData(driver)
-            self.returnUiMessage('Done : Get all customer data porcessing.')
+            self.saveToExcelFunc() if self.sendEmailFunc() else ''
+            
 
-            driver.close()
-            # self.returnUiMessage('done, colse chrome porcessing.', 'Note')
-            # # setting chrome
-            # self.returnUiMessage('Starting : Open chrome porcessing')
-            # waitWithSec()
-            run.sendingEmails(self, saveJsonData[self.tabName_mailgun])
-            # createNewExcelWithData(self,run.excelData(), types=run.tag)
-            # self.returnUiMessage('Done : Open chrome porcessing')
 
+    # send email handler
+    #
     def sendEmailBTN(self):
-        saveSettingOptionToFile = self.saveSettingOptionToFile()  
+        sendEmail = self.sendEmailFunc()  
+
+        if(sendEmail):
+            self.saveToExcelBTN()
+
+    def sendEmailFunc(self):
+        saveSettingOptionToFile = self.saveSettingOptionToFileFunc()
 
         if(saveSettingOptionToFile):
+            msg = 'sending Emails processing.'
+            self.returnUiMessage(f'Starting : {msg}')
 
             saveJsonData = JASON_HANDLER.loadJasonFile()
+            run = self.runSetting()
+            sendingEmails = run.sendingEmails(self, saveJsonData[self.tabName_mailgun])
 
-            run = AutoEmailingAndDownlaoding(
-                self, 
-                saveJsonData[self.tabName_setting]['chromePath']['value'], 
-                saveJsonData[self.tabName_email]['condition']['value'], 
-                saveJsonData[self.tabName_email]['findOrders']['value'], 
-                saveJsonData[self.tabName_email]['tag']['value'],
-                saveJsonData[self.tabName_email]['template']['value']
-                )
+            self.returnUiMessage(f'Done : {msg}')
+
+            return sendingEmails
+        else:
+            return False
             
-            run.sendingEmails(self, saveJsonData[self.tabName_mailgun])  
 
-            createNewExcelWithData(self, run.excelData(), types=run.tag) 
+    # save GUI options to file handler
+    #               
+    def saveSettingOptionToFileBTN(self):
+        saveSetting = self.saveSettingOptionToFileFunc()
+        if(saveSetting):
+            self.returnUiMessage('Setting options saved.')
 
-    def saveSettingOptionToFile(self):
+    def saveSettingOptionToFileFunc(self):
         
         def checkSettingAllTrue(ary):
             array = []
@@ -401,50 +389,82 @@ class App(customtkinter.CTk):
         # Verifies that each option Boolean and displays a Warning message if FALSE.
         for i in range(len(verifySettingList)):
             if(verifySettingList[i]['bool'] == False):
-                self.returnUiWarningMessage(verifySettingList[i]['bool'],verifySettingList[i]['text'])
+                self.returnUiMessage(verifySettingList[i]['text'], 'Warning')
                 break
 
         # if all options are True that save data to json.
         if(checkSettingAllTrue(verifySettingList)):
-            self.returnUiMessage('Setting options saved.')
             JASON_HANDLER.writeJsonFile(self.datas) 
             return True
 
-    def downloadUserData(self):
+    
+    # download users data handler
+    #
+    def downloadUserDataBTN(self):
+        self.downloadUserDataFunc()
 
-        saveSettingOptionToFile = self.saveSettingOptionToFile()  
+    def downloadUserDataFunc(self):
+
+        saveSettingOptionToFile = self.saveSettingOptionToFileFunc()  
 
         if(saveSettingOptionToFile):
             saveJsonData = JASON_HANDLER.loadJasonFile()
-            
-            run = AutoEmailingAndDownlaoding(
-                self, 
-                saveJsonData[self.tabName_setting]['chromePath']['value'], 
-                saveJsonData[self.tabName_email]['condition']['value'], 
-                saveJsonData[self.tabName_email]['findOrders']['value'], 
-                saveJsonData[self.tabName_email]['tag']['value'],
-                saveJsonData[self.tabName_email]['template']['value']
-                )
+            run = self.runSetting()
 
             # start
             self.returnUiMessage('starting process, please do not control you\'re computer before finish process.', 'Note')
             self.returnUiMessage('starting process, please do not control you\'re computer before finish process.', 'Note')
 
             # opean chrome
-            self.returnUiMessage('Starting : Open chrome porcessing.')
+            self.returnUiMessage('Starting : Open chrome processing.')
             createChrome(saveJsonData[self.tabName_setting]['chromePath']['value'])
             driver = Driver().run()
-            self.returnUiMessage('Done : Open chrome porcessing.')
+            self.returnUiMessage('Done : Open chrome processing.')
 
             # get and download user data from shopline
-            self.returnUiMessage('Starting : Get all customer data porcessing.')
+            self.returnUiMessage('Starting : Get all customer data processing.')
             run.getAllCustomerData(driver)
-            self.returnUiMessage('Done : Get all customer data porcessing.')
+            self.returnUiMessage('Done : Get all customer data processing.')
 
             driver.close()
+  
+
+    # save to Excel handler
+    #
+    def saveToExcelBTN(self):
+        self.saveToExcelFunc()
+
+    def saveToExcelFunc(self):
+        msg = 'saving user\'s data to excel.'
+        self.returnUiMessage(f'Starting : {msg}')
+        run = self.runSetting()
+        createNewExcelWithData(self, run.excelData(), types=run.tag)
+        self.returnUiMessage(f'Done : {msg}')    
 
 
-
+    # functions
+    #
+    def runSetting(self):
+        saveJsonData = JASON_HANDLER.loadJasonFile()
+        run = AutoEmailingAndDownlaoding(
+                self, 
+                saveJsonData[self.tabName_setting]['chromePath']['value'], 
+                saveJsonData[self.tabName_email]['condition']['value'], 
+                saveJsonData[self.tabName_email]['findOrders']['value'], 
+                saveJsonData[self.tabName_email]['tag']['value'],
+                saveJsonData[self.tabName_email]['template']['value']
+            )
+        return run
+    
+    def returnUiMessage(self, value, tag=''):
+        text = tag + ' : ' if tag != '' else ''
+        self.textbox.configure(state='normal')
+        self.textbox.insert("0.0", f'\n{text}{value}\n\n', tag)
+        self.textbox.insert("0.0", f'{time.strftime("%m/%d %H:%M:%S", time.localtime())}', 'time')
+        self.textbox.configure(state='disabled')
+        self.textbox.update()
+        print(value)
+            
 
 class BTN_FUNCTION():
     # def __init__(self):

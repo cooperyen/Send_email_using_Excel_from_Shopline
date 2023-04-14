@@ -52,5 +52,6 @@ class EMAIL_HANDLER():
                     uiApp.returnUiMessage(f'{userData["email"]} : {message}')
                 except:
                     uiApp.returnUiMessage('Mailgun setup error, please check if the api key and domain are correct', 'Warning')
+                    return False
                     
 

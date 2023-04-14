@@ -59,7 +59,7 @@ def getRow(tables, condition='', findOrders=''):
 
                         match condition:
                             case '=':
-                                if (orders == 'cooper.rafago@gmail.com'):
+                                if (orders == 'cooper.rafago@gmail.com' or orders == 'dknick081@gmail.com'):
                                     arrays.append(a)
                             # case '>':
                             #     if (orders > findOrders):
@@ -93,26 +93,27 @@ def datas(tables, arrays):
 
 def createNewExcelWithData(uiApp, data, types=''):
     print(data)
-    # saveNewExcelName = f'{newFileName}_{types}'
-    # newExcel = openpyxl.Workbook()
-    # newExcel.create_sheet("users", 0)
-    # newExcelSheetTarget = newExcel.worksheets[0]
+    saveNewExcelName = f'{newFileName}_{types}'
+    newExcel = openpyxl.Workbook()
+    newExcel.create_sheet("users", 0)
+    newExcelSheetTarget = newExcel.worksheets[0]
 
-    # for index in range(len(titleList)):
-    #     newExcelSheetTarget.cell(1, index + 1).value = titleList[index]
+    for index in range(len(titleList)):
+        newExcelSheetTarget.cell(1, index + 1).value = titleList[index]
 
-    # for index in range(len(data)):
-    #     for arrayDataIndex in range(len(data[index])):
-    #         newExcelSheetTarget.cell(
-    #             index + 2, arrayDataIndex + 1).value = data[index][arrayDataIndex]
+    for index in range(len(data)):
+        for arrayDataIndex in range(len(data[index])):
+            newExcelSheetTarget.cell(
+                index + 2, arrayDataIndex + 1).value = data[index][arrayDataIndex]
 
-    # newExcel.save(f'{saveFliePath}' + saveNewExcelName + '.xlsx')
-    # uiApp.returnUiMessage(f'The file "{saveNewExcelName}" is saved at {saveFliePath}')
+    newExcel.save(f'{saveFliePath}' + saveNewExcelName + '.xlsx')
+    uiApp.returnUiMessage(f'The file "{saveNewExcelName}" is saved at {saveFliePath}')
 
 def getExcelData(uiApp, condition='=', findOrders=1):
     newestXLS = newest(downLoadPath)
 
-    if ('.xls' in newestXLS):
+    # return False
+    if ('.xlsx' in newestXLS):
         data = xlrd.open_workbook(newestXLS)
         tables = data.sheets()[0]
         return datas(tables, getRow(tables, condition=condition, findOrders=findOrders))
