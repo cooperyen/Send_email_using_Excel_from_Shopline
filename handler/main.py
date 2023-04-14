@@ -3,14 +3,13 @@ import time
 import win32com.client as win32
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.keys import Keys
-from handler.web_handler.el_func import elementTarget
 from handler.web_handler.funcs import waitWithSec
-from handler.web_handler.webdriver_setting import driverURL
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from datetime import datetime as date
 from handler.excel_handler.xlrdtest import getExcelData, newest, downLoadPath
 from handler.email_handler.send_email import EMAIL_HANDLER
+from handler.web_handler.main import WEB_HANDLER
 
 
 class AutoEmailingAndDownlaoding:
@@ -23,14 +22,17 @@ class AutoEmailingAndDownlaoding:
         #     condition=condition, findOrders=findOrders)
         self.dowloadPath = dowloadPath
         self.path = 'Downloads'
-        self.downloadFilePath = os.path.join(os.path.expanduser("~"), self.path) + '\\'
+        self.downloadFilePath = os.path.join(
+            os.path.expanduser("~"), self.path) + '\\'
 
         self.tag = tag
         self.template = template
         self.longWaitSec = 5
         self.reloadDownlaodPageSec = 20
+        self.WEB_HANDLER = WEB_HANDLER()
 
     # 方法(Method)
+
     def xlsToxlsx(self):
         files = newest(downLoadPath)
         fileName = os.path.basename(files).split('.')[0]
@@ -38,24 +40,28 @@ class AutoEmailingAndDownlaoding:
         newFileName = f'{fileName}_{strTime}'
 
         # save as xlsx.
-        excel = win32.gencache.EnsureDispatch('Excel.Application') #調用win32模塊
-        wb = excel.Workbooks.Open(files) #打開需要轉換的文件
-        wb.SaveAs(f'{downLoadPath}{newFileName}.xlsx', FileFormat = 51) #文件另存爲xlsx擴展名的文件
+        excel = win32.gencache.EnsureDispatch('Excel.Application')  # 調用win32模塊
+        wb = excel.Workbooks.Open(files)  # 打開需要轉換的文件
+        wb.SaveAs(f'{downLoadPath}{newFileName}.xlsx',
+                  FileFormat=51)  # 文件另存爲xlsx擴展名的文件
         wb.Close()
         excel.Application.Quit()
 
         # remove as xls.
-        removeFilePath = os.path.join(downLoadPath, f'{fileName}.xls')  
+        removeFilePath = os.path.join(downLoadPath, f'{fileName}.xls')
         os.remove(removeFilePath)
 
     def checkIsDownloaded(self, beforeLength):
         currentLength = len(os.listdir(self.downloadFilePath))
-        self.uiApp.returnUiMessage(f'Starting to check whether the download is complete', 'Note')
-        self.uiApp.returnUiMessage(f'Current the number of files is : {currentLength}', 'Note')
+        self.uiApp.returnUiMessage(
+            f'Starting to check whether the download is complete', 'Note')
+        self.uiApp.returnUiMessage(
+            f'Current the number of files is : {currentLength}', 'Note')
 
         if (currentLength > beforeLength):
             self.xlsToxlsx()
-            self.uiApp.returnUiMessage('download completed. close processing', 'Note')
+            self.uiApp.returnUiMessage(
+                'download completed. close processing', 'Note')
         else:
             self.uiApp.returnUiMessage(
                 f'The download has not completed, check again after {self.longWaitSec} sec.', 'Note')
@@ -64,14 +70,14 @@ class AutoEmailingAndDownlaoding:
 
     def checkDownloadIsAvailable(self, driver):
         waitWithSec()
-        status = elementTarget(
+        status = self.WEB_HANDLER.elementTarget(
             driver, '//table//tr/td/div[@ng-class="getLabelClass(job.status)"]', By.XPATH).text
         beforeLength = len(os.listdir(self.downloadFilePath))
 
         if (status == '執行完成'):
             self.uiApp.returnUiMessage(
                 f'Checking the number of files before downloading is {beforeLength}', 'Note')
-            elementTarget(
+            self.WEB_HANDLER.elementTarget(
                 driver, '//table//tr/td/div[@ng-click="getResultFiles(job.options.files_s3_url, job.name)"]', By.XPATH).click()
 
             waitWithSec(sec=3)
@@ -86,7 +92,7 @@ class AutoEmailingAndDownlaoding:
 
     def inputAndSaveTag_remarkController(self, text, driver):
 
-        remark = elementTarget(
+        remark = self.WEB_HANDLER.elementTarget(
             driver, '//textarea[@placeholder="請輸入顧客備註"]', By.XPATH)
 
         remark.click()
@@ -94,7 +100,7 @@ class AutoEmailingAndDownlaoding:
         remark.send_keys(Keys.CONTROL, 'a')
         waitWithSec()
         remark.send_keys(text)
-        elementTarget(
+        self.WEB_HANDLER.elementTarget(
             driver, '//div[@ng-if="editAccess()"]/a[@ng-click="save()"]', By.XPATH).click()
 
     def inputAndSaveTag(self, driver):
@@ -103,17 +109,18 @@ class AutoEmailingAndDownlaoding:
         USERURL = 'https://admin.shoplineapp.com/admin/rafagogorafa154/users/'
 
         waitWithSec(sec=3)
-        excelData = getExcelData(self.uiApp, condition=self.condition, findOrders=self.findOrders)
+        excelData = getExcelData(
+            self.uiApp, condition=self.condition, findOrders=self.findOrders)
 
         for i in excelData:
             driver.get(USERURL+i[0])
             waitWithSec()
 
             try:
-                text = elementTarget(
+                text = self.WEB_HANDLER.elementTarget(
                     driver, '//p[@ng-bind-html="user.memo"]', By.XPATH).text + f'.{self.tag}'
 
-                elementTarget(
+                self.WEB_HANDLER.elementTarget(
                     driver, '//a[@ng-click="edit()"]', By.XPATH).click()
 
                 self.inputAndSaveTag_remarkController(text)
@@ -129,7 +136,7 @@ class AutoEmailingAndDownlaoding:
 
         driver.maximize_window()
         waitWithSec()
-        driver.get(driverURL)
+        driver.get(self.WEB_HANDLER.driverURL)
 
         # export user data
         exportUserData = ['//div[@data-e2e-id="sidebar_customer_management_menu"]',
@@ -140,8 +147,8 @@ class AutoEmailingAndDownlaoding:
                           '//button[@ng-click="export()"]'
                           ]
 
-        for i in exportUserData:
-            elementTarget(driver, f'{i}', By.XPATH).click()
+        # for i in exportUserData:
+        #     self.WEB_HANDLER.elementTarget(driver, f'{i}', By.XPATH).click()
 
         self.uiApp.returnUiMessage(
             f'Already Export file. will processing download file after {self.longWaitSec} sec.', 'Note')
@@ -149,18 +156,18 @@ class AutoEmailingAndDownlaoding:
         # download
         waitWithSec(sec=self.longWaitSec)
         self.uiApp.returnUiMessage('Starting : Download file processing.')
-        elementTarget(driver,
-                      '//div[@data-e2e-id="sidebar_report_and_analytis_menu"]', By.XPATH).click()
-        elementTarget(driver,
-                      '//a[@data-e2e-id="sidebar_report_and_analytis_submenu_jobs"]', By.XPATH).click()
+        self.WEB_HANDLER.elementTarget(driver,
+                                       '//div[@data-e2e-id="sidebar_report_and_analytis_menu"]', By.XPATH).click()
+        self.WEB_HANDLER.elementTarget(driver,
+                                       '//a[@data-e2e-id="sidebar_report_and_analytis_submenu_jobs"]', By.XPATH).click()
 
         self.checkDownloadIsAvailable(driver)
 
     def sendingEmails(self, uiApp, loadJsonData):
 
         excelData = self.excelData()
-        
-        if(excelData != False):
+
+        if (excelData != False):
             state = True
             for i in excelData:
                 name = i[1]
@@ -174,12 +181,11 @@ class AutoEmailingAndDownlaoding:
                 email = EMAIL_HANDLER(loadJsonData['mailgun'])
                 sendState = email.sendtemplateMessage(uiApp, userData)
                 i.append(self.tag)
-                if(sendState == False):
+                if (sendState == False):
                     state = False
                     break
 
             return state
 
     def excelData(self):
-        return getExcelData(self.uiApp, condition=self.condition, findOrders=self.findOrders)    
-
+        return getExcelData(self.uiApp, condition=self.condition, findOrders=self.findOrders)

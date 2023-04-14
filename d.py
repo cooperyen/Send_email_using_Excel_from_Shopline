@@ -1,6 +1,4 @@
-name = 'Cooper'
+from handler.main import AutoEmailingAndDownlaoding
 
-
-strr = 'Hi {name}'
-
-print(strr.replace('{name}',name))
+AutoEmailingAndDownlaoding(
+    'uiApp', 'dowloadPath', 'condition', 'findOrders', 'tag', 'template').xlsToxlsx()
