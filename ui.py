@@ -1,17 +1,13 @@
-import tkinter
-import tkinter.messagebox
 import customtkinter
-from web_handler.create_chrome import pathCheckChrome
-from main import AutoEmailingAndDownlaoding
-from web_handler.funcs import waitWithSec
-import json
+from handler.web_handler.create_chrome import pathCheckChrome
+from handler.main import AutoEmailingAndDownlaoding
 import os
 import time
 import re
-from excel_handler.xlrdtest import createNewExcelWithData
-from web_handler.create_chrome import createChrome
-from web_handler.webdriver_setting import Driver, driverURL
-from functions_handler.json_handler import JASON_HANDLER, saveJsonFileName
+from handler.excel_handler.xlrdtest import createNewExcelWithData
+from handler.web_handler.create_chrome import createChrome
+from handler.web_handler.webdriver_setting import Driver
+from handler.functions_handler.json_handler import JASON_HANDLER, saveJsonFileName
 
 # Modes: "System" (standard), "Dark", "Light"
 customtkinter.set_appearance_mode("System")
@@ -32,6 +28,7 @@ class App(customtkinter.CTk):
         self.grid_columnconfigure(1, weight=1)
         self.grid_columnconfigure((2, 3), weight=0)
         self.grid_rowconfigure((0, 1, 2), weight=1)
+        self.font = customtkinter.CTkFont(family='Microsoft JhengHei')
 
         self.datas = {
             'target': {
@@ -51,6 +48,12 @@ class App(customtkinter.CTk):
                     'en': 'Tag Name',
                     'ch': '標籤名稱',
                     'info':'',
+                    'value':''
+                },
+                'subject': {
+                    'en': 'Mail subject',
+                    'ch': '郵件主旨',
+                    'info':'enter {name} display user name.eg. "Hi {name}, how are you?"',
                     'value':''
                 },
                 'template': {
@@ -83,13 +86,13 @@ class App(customtkinter.CTk):
                 },
                 'apiKey': {
                     'en': 'api key',
-                    'ch': 'Chrome 路徑',
+                    'ch': 'api key',
                     'info' : 'key-7317a30a70357cf6309ab4fead46637d',
                     'value':''
                 },
                 'domain': {
                     'en': 'domain',
-                    'ch': 'Chrome 路徑',
+                    'ch': 'domain',
                     'info' : 'rafagotest.a2hosted.com',
                     'value':''
                 },
@@ -121,13 +124,11 @@ class App(customtkinter.CTk):
             self.sidebar_frame, text="CustomTkinter", font=customtkinter.CTkFont(size=20, weight="bold"))
         self.logo_label.grid(row=0, column=0, padx=20, pady=(20, 10))
 
-        
-        
 
         self.appearance_mode_label = customtkinter.CTkLabel(
             self.sidebar_frame, text="Appearance Mode:", anchor="w")
         self.appearance_mode_label.grid(row=6, column=0, padx=20, pady=(10, 0))
-        self.appearance_mode_optionemenu = customtkinter.CTkOptionMenu(self.sidebar_frame, values=["Light", "Dark", "System"],command=self.change_appearance_mode_event)
+        self.appearance_mode_optionemenu = customtkinter.CTkOptionMenu(self.sidebar_frame, values=["System", "Dark", "Light"],command=self.change_appearance_mode_event)
         
         self.appearance_mode_optionemenu.grid(
             row=7, column=0, padx=20, pady=(10, 10))
@@ -135,7 +136,7 @@ class App(customtkinter.CTk):
             self.sidebar_frame, text="UI Scaling:", anchor="w")
 
         self.scaling_label.grid(row=8, column=0, padx=20, pady=(10, 0))
-        self.scaling_optionemenu = customtkinter.CTkOptionMenu(self.sidebar_frame, values=["80%", "90%", "100%", "110%", "120%"],command=self.change_scaling_event)
+        self.scaling_optionemenu = customtkinter.CTkOptionMenu(self.sidebar_frame, values=["100%", "110%", "120%"],command=self.change_scaling_event)
         self.scaling_optionemenu.grid(row=9, column=0, padx=20, pady=(10, 20))
 
         # create textbox
@@ -157,7 +158,7 @@ class App(customtkinter.CTk):
         ary = [
             {
                 'command': self.saveSettingOptionToFileBTN,
-                'text' : 'save'
+                'text' : 'save setting options'
             },
             {
                 'command': self.downloadUserDataBTN,
@@ -169,11 +170,11 @@ class App(customtkinter.CTk):
             },
             {
                 'command': self.saveToExcelBTN,
-                'text' : 'save data to excel'
+                'text' : 'save user data to excel'
             },
             {
                 'command': self.fullProcessBTN,
-                'text' : 'all process'
+                'text' : 'Do all of the above'
             }
         ]
 
@@ -198,7 +199,7 @@ class App(customtkinter.CTk):
             # self.writeJsonFile(self.datas)
             JASON_HANDLER.writeJsonFile(self.datas)
     
-        saveJsonData = JASON_HANDLER.loadJasonFile()
+        loadJsonData = JASON_HANDLER.loadJasonFile()
   
         def emailOption(tableView, tagName):
             mainRowNum = 1
@@ -217,19 +218,18 @@ class App(customtkinter.CTk):
                 
                 # informations label
                 customtkinter.CTkLabel(
-                    tableView, text=f"{self.datas[tagName][labels]['info']}", anchor="w", font=customtkinter.CTkFont(family='PMingLiU')).grid(
-                    row=infoRowNum, column=1,sticky='w')
+                    tableView, text=f"{self.datas[tagName][labels]['info']}", anchor="w", font=self.font).grid(row=infoRowNum, column=1,sticky='w')
 
                 globals()[f'__ui_labelsData_{labels}'] = customtkinter.CTkEntry(tableView, width=400)
 
                 if(labels == 'condition'):
                     globals()[f'__ui_labelsData_{labels}'] = customtkinter.CTkOptionMenu(master=tableView,
                                         values=['>', '<','=','>=','<='])
-                    globals()[f'__ui_labelsData_{labels}'].set(saveJsonData[tagName][labels]['value'])
+                    globals()[f'__ui_labelsData_{labels}'].set(loadJsonData[tagName][labels]['value'])
                     globals()[f'__ui_labelsData_{labels}'].grid(row=1 , column=1, pady=(10, 0),sticky='w')
                 else:
                     globals()[f'__ui_labelsData_{labels}'].grid(row=mainRowNum , column=1, pady=(10, 0))
-                    globals()[f'__ui_labelsData_{labels}'].insert(0,saveJsonData[tagName][labels]['value'])    
+                    globals()[f'__ui_labelsData_{labels}'].insert(0,loadJsonData[tagName][labels]['value'])    
 
                 infoRowNum = infoRowNum + 2
                 mainRowNum = mainRowNum + 2
@@ -266,7 +266,7 @@ class App(customtkinter.CTk):
         saveSettingOptionToFile = self.saveSettingOptionToFileFunc()  
 
         if(saveSettingOptionToFile):
-            saveJsonData = JASON_HANDLER.loadJasonFile()
+            loadJsonData = JASON_HANDLER.loadJasonFile()
             run = self.runSetting()
 
             # start
@@ -278,7 +278,6 @@ class App(customtkinter.CTk):
 
             self.saveToExcelFunc() if self.sendEmailFunc() else ''
             
-
 
     # send email handler
     #
@@ -295,9 +294,9 @@ class App(customtkinter.CTk):
             msg = 'sending Emails processing.'
             self.returnUiMessage(f'Starting : {msg}')
 
-            saveJsonData = JASON_HANDLER.loadJasonFile()
+            loadJsonData = JASON_HANDLER.loadJasonFile()
             run = self.runSetting()
-            sendingEmails = run.sendingEmails(self, saveJsonData[self.tabName_mailgun])
+            sendingEmails = run.sendingEmails(self, loadJsonData)
 
             self.returnUiMessage(f'Done : {msg}')
 
@@ -408,7 +407,7 @@ class App(customtkinter.CTk):
         saveSettingOptionToFile = self.saveSettingOptionToFileFunc()  
 
         if(saveSettingOptionToFile):
-            saveJsonData = JASON_HANDLER.loadJasonFile()
+            loadJsonData = JASON_HANDLER.loadJasonFile()
             run = self.runSetting()
 
             # start
@@ -417,7 +416,7 @@ class App(customtkinter.CTk):
 
             # opean chrome
             self.returnUiMessage('Starting : Open chrome processing.')
-            createChrome(saveJsonData[self.tabName_setting]['chromePath']['value'])
+            createChrome(loadJsonData[self.tabName_setting]['chromePath']['value'])
             driver = Driver().run()
             self.returnUiMessage('Done : Open chrome processing.')
 
@@ -445,14 +444,14 @@ class App(customtkinter.CTk):
     # functions
     #
     def runSetting(self):
-        saveJsonData = JASON_HANDLER.loadJasonFile()
+        loadJsonData = JASON_HANDLER.loadJasonFile()
         run = AutoEmailingAndDownlaoding(
                 self, 
-                saveJsonData[self.tabName_setting]['chromePath']['value'], 
-                saveJsonData[self.tabName_email]['condition']['value'], 
-                saveJsonData[self.tabName_email]['findOrders']['value'], 
-                saveJsonData[self.tabName_email]['tag']['value'],
-                saveJsonData[self.tabName_email]['template']['value']
+                loadJsonData[self.tabName_setting]['chromePath']['value'], 
+                loadJsonData[self.tabName_email]['condition']['value'], 
+                loadJsonData[self.tabName_email]['findOrders']['value'], 
+                loadJsonData[self.tabName_email]['tag']['value'],
+                loadJsonData[self.tabName_email]['template']['value']
             )
         return run
     
@@ -471,17 +470,17 @@ class BTN_FUNCTION():
     #     App.__init__(self)
 
     # def fullProcessBTNs(self):
-    #     saveJsonData = JASON_HANDLER.loadJasonFile()
+    #     loadJsonData = JASON_HANDLER.loadJasonFile()
     #     run = AutoEmailingAndDownlaoding(
     #         self, 
-    #         saveJsonData[self.tabName_setting]['chromePath']['value'], 
-    #         saveJsonData[self.tabName_email]['condition']['value'], 
-    #         saveJsonData[self.tabName_email]['findOrders']['value'], 
-    #         saveJsonData[self.tabName_email]['tag']['value'],
-    #         saveJsonData[self.tabName_email]['template']['value']
+    #         loadJsonData[self.tabName_setting]['chromePath']['value'], 
+    #         loadJsonData[self.tabName_email]['condition']['value'], 
+    #         loadJsonData[self.tabName_email]['findOrders']['value'], 
+    #         loadJsonData[self.tabName_email]['tag']['value'],
+    #         loadJsonData[self.tabName_email]['template']['value']
     #         )
         
-    #     run.sendingEmails(self, saveJsonData[self.tabName_mailgun])
+    #     run.sendingEmails(self, loadJsonData[self.tabName_mailgun])
 
     def xdd(self):
         self.returnUiMessage('455456')
