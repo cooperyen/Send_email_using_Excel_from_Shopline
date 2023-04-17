@@ -55,3 +55,12 @@ class EMAIL_HANDLER():
                     return False
                     
 
+# email = 'tina29461526@yahoo.com.tw'
+email = 'dknick081@gmail.com'
+
+check = requests.get(
+    "https://api.mailgun.net/v4/address/validate",
+    auth=("api", 'key-7317a30a70357cf6309ab4fead46637d'),
+    params={"address": email})
+
+print(check.content)

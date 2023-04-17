@@ -12,6 +12,36 @@ customtkinter.set_appearance_mode("System")
 # Themes: "blue" (standard), "green", "dark-blue"
 customtkinter.set_default_color_theme("blue")
 
+class ToplevelWindow(customtkinter.CTkToplevel):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.geometry("400x300")
+
+        self.label = customtkinter.CTkLabel(self, text="ToplevelWindow")
+        self.label.pack(padx=20, pady=20)
+        self.protocol("WM_DELETE_WINDOW", self.closed) # <-- adding the protocol
+        self.entry = customtkinter.CTkEntry(master=self, placeholder_text="CTkEntry")
+        self.entry.pack(padx=20, pady=10)
+        
+        self.btn = customtkinter.CTkButton(self, command=self.email)
+        self.btn.configure(text='123')
+        self.btn.place(relx=0.5, rely=0.5)
+        self.main = ''
+
+    def closed(self):
+        print(self.entry.get())
+        # self.sendEmailFunc()
+        self.destroy()
+
+    def email(self):
+        arg = {'cooper.rafago@gmail.com','dknick081@gmail.com'}
+        print(self.main.sendTestEmailFunc(arg))      
+
+    def xxxx(self, a):
+        self.main = a
+        
+
+
 
 class App(customtkinter.CTk):
     def __init__(self):
@@ -112,6 +142,8 @@ class App(customtkinter.CTk):
             },
         }
 
+        # toplevel_window
+        self.toplevel_window = None
         # create sidebar frame with widgets
         self.sidebar_frame = customtkinter.CTkFrame(
             self, width=140, corner_radius=0)
@@ -176,6 +208,10 @@ class App(customtkinter.CTk):
             {
                 'command': self.fullProcessBTN,
                 'text': 'Do all of the above'
+            },
+            {
+                'command': self.testEmailBTN,
+                'text': 'Send test email'
             }
         ]
 
@@ -216,7 +252,7 @@ class App(customtkinter.CTk):
             for labels in self.datas[tagName]:
                 # items label
                 customtkinter.CTkLabel(
-                    tableView, text=f"{self.datas[tagName][labels]['en']}", anchor="w").grid(
+                    tableView, text=f"{self.datas[tagName][labels]['en']}", anchor="w", font=self.font).grid(
                     row=1 if mainRowNum == 1 else mainRowNum, column=0, padx=20, pady=(0, 0), sticky='w')
 
                 # informations label
@@ -224,7 +260,7 @@ class App(customtkinter.CTk):
                     tableView, text=f"{self.datas[tagName][labels]['info']}", anchor="w", font=self.font).grid(row=infoRowNum, column=1, sticky='w')
 
                 globals()[f'__ui_labelsData_{labels}'] = customtkinter.CTkEntry(
-                    tableView, width=400)
+                    tableView, width=400, font=self.font)
 
                 if (labels == 'condition'):
                     globals()[f'__ui_labelsData_{labels}'] = customtkinter.CTkOptionMenu(master=tableView,
@@ -288,6 +324,21 @@ class App(customtkinter.CTk):
 
             # self.saveToExcelFunc() if self.sendEmailFunc() else ''
 
+    # send test mail.
+    #
+    def testEmailBTN(self):
+
+        
+
+        if self.toplevel_window is None or not self.toplevel_window.winfo_exists():
+            self.toplevel_window = ToplevelWindow(self)  # create window if its None or destroyed
+            self.toplevel_window.grab_set() 
+        else:
+            self.toplevel_window.focus()  # if window exists focus it
+
+        self.toplevel_window.xxxx(self)
+        
+          
     # send email handler
     #
 
@@ -313,6 +364,24 @@ class App(customtkinter.CTk):
             return sendingEmails
         else:
             return False
+
+    def sendTestEmailFunc(self, email):
+        saveSettingOptionToFile = self.saveSettingOptionToFileFunc()
+
+        if (saveSettingOptionToFile):
+            msg = 'sending Test Emails processing.'
+            self.returnUiMessage(f'Starting : {msg}')
+
+            loadJsonData = JASON_HANDLER.loadJasonFile()
+            run = self.runSetting()
+            sendingEmails = run.sendingTestEmails(self, loadJsonData, email)
+
+            self.returnUiMessage(f'Done : {msg}')
+
+            return sendingEmails
+        else:
+            return False
+
 
     # save GUI options to file handler
     #

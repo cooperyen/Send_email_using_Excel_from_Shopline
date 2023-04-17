@@ -17,13 +17,15 @@ def newest(path, suffix=None):
     paths = [os.path.join(path, basename) for basename in files]
     return max(paths, key=os.path.getctime)
 
-def getRows(condition='=', findOrders=1):
+def getRow(tables, condition='', findOrders=''):
     arrays = []
     for s in range(tables.ncols):
         if (tables.cell(0, s).value == '訂單數'):
             for a in range(1, tables.nrows):
                 orders = tables.cell(a, s).value
                 if (orders != ''):
+                    orders = int(orders)
+                    findOrders = int(findOrders)
 
                     match condition:
                         case '=':
@@ -44,7 +46,7 @@ def getRows(condition='=', findOrders=1):
 
     return arrays
 
-def getRow(tables, condition='', findOrders=''):
+def getRows(tables, condition='', findOrders=''):
     arrays = []
 
     if (condition == '' or findOrders == ''):
@@ -61,6 +63,8 @@ def getRow(tables, condition='', findOrders=''):
                             case '=':
                                 if (orders == 'cooper.rafago@gmail.com'):
                                     arrays.append(a)
+                                # if (orders == 'akzophilip@gmail.com'):
+                                #     arrays.append(a)    
                             # case '>':
                             #     if (orders > findOrders):
                             #         arrays.append(a)

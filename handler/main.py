@@ -172,20 +172,41 @@ class AutoEmailingAndDownlaoding:
             for i in excelData:
                 name = i[1]
                 email = i[3]
-                userData = {'name': name,
-                            'email': email,
+                if('@yahoo.com' not in email):
+                    if('@hotmail.com' not in email):
+                        userData = {'name': name,
+                                    'email': email,
+                                    'template': self.template,
+                                    'tag': self.tag,
+                                    'subject': loadJsonData["target"]["subject"]["value"].replace('{name}', name)
+                                    }
+                        email = EMAIL_HANDLER(loadJsonData['mailgun'])
+                        sendState = email.sendtemplateMessage(uiApp, userData)
+                        i.append(self.tag)
+                        if (sendState == False):
+                            state = False
+                            break
+
+            return state
+        
+    def sendingTestEmails(self, uiApp, loadJsonData, email=''):
+
+        if (email != ''):
+            state = True
+            for i in email:
+                userData = {'name': 'test name',
+                            'email': i,
                             'template': self.template,
                             'tag': self.tag,
-                            'subject': loadJsonData["target"]["subject"]["value"].replace('{name}', name)
+                            'subject': loadJsonData["target"]["subject"]["value"].replace('{name}', 'test name')
                             }
                 email = EMAIL_HANDLER(loadJsonData['mailgun'])
                 sendState = email.sendtemplateMessage(uiApp, userData)
-                i.append(self.tag)
                 if (sendState == False):
                     state = False
                     break
 
-            return state
+            return state    
 
     def excelData(self):
         return getExcelData(self.uiApp, condition=self.condition, findOrders=self.findOrders)
