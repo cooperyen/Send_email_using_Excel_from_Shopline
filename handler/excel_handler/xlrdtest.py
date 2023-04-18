@@ -111,7 +111,7 @@ def createNewExcelWithData(uiApp, data, types=''):
                 index + 2, arrayDataIndex + 1).value = data[index][arrayDataIndex]
 
     newExcel.save(f'{saveFliePath}' + saveNewExcelName + '.xlsx')
-    uiApp.returnUiMessage(f'The file "{saveNewExcelName}" is saved at {saveFliePath}')
+    uiApp.returnUiMessageHandler(f'The file "{saveNewExcelName}" is saved at {saveFliePath}')
 
 def getExcelData(uiApp, condition='=', findOrders=1):
     newestXLS = newest(downLoadPath)
@@ -122,7 +122,7 @@ def getExcelData(uiApp, condition='=', findOrders=1):
         tables = data.sheets()[0]
         return datas(tables, getRow(tables, condition=condition, findOrders=findOrders))
     else:
-        uiApp.returnUiMessage('The newest download file is not type ".xls", please try again.','Warning')
+        uiApp.returnUiMessageHandler('The newest download file is not type ".xls", please try again.','Warning')
         return False
 
 

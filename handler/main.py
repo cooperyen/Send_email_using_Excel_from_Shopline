@@ -3,7 +3,7 @@ import time
 import win32com.client as win32
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.keys import Keys
-from handler.web_handler.funcs import waitWithSec
+from handler.functions_handler.base_handler import waitWithSec
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from datetime import datetime as date
@@ -53,17 +53,17 @@ class AutoEmailingAndDownlaoding:
 
     def checkIsDownloaded(self, beforeLength):
         currentLength = len(os.listdir(self.downloadFilePath))
-        self.uiApp.returnUiMessage(
+        self.uiApp.returnUiMessageHandler(
             f'Starting to check whether the download is complete', 'Note')
-        self.uiApp.returnUiMessage(
+        self.uiApp.returnUiMessageHandler(
             f'Current the number of files is : {currentLength}', 'Note')
 
         if (currentLength > beforeLength):
             self.xlsToxlsx()
-            self.uiApp.returnUiMessage(
+            self.uiApp.returnUiMessageHandler(
                 'download completed. close processing', 'Note')
         else:
-            self.uiApp.returnUiMessage(
+            self.uiApp.returnUiMessageHandler(
                 f'The download has not completed, check again after {self.longWaitSec} sec.', 'Note')
             waitWithSec(sec=self.longWaitSec)
             self.checkIsDownloaded(beforeLength)
@@ -75,7 +75,7 @@ class AutoEmailingAndDownlaoding:
         beforeLength = len(os.listdir(self.downloadFilePath))
 
         if (status == '執行完成'):
-            self.uiApp.returnUiMessage(
+            self.uiApp.returnUiMessageHandler(
                 f'Checking the number of files before downloading is {beforeLength}', 'Note')
             self.WEB_HANDLER.elementTarget(
                 driver, '//table//tr/td/div[@ng-click="getResultFiles(job.options.files_s3_url, job.name)"]', By.XPATH).click()
@@ -84,7 +84,7 @@ class AutoEmailingAndDownlaoding:
             self.checkIsDownloaded(beforeLength)
 
         else:
-            self.uiApp.returnUiMessage(
+            self.uiApp.returnUiMessageHandler(
                 f'The download button not ready, will refresh page after {self.reloadDownlaodPageSec} sec.', 'Note')
             waitWithSec(sec=self.reloadDownlaodPageSec)
             driver.refresh()
@@ -150,12 +150,12 @@ class AutoEmailingAndDownlaoding:
         # for i in exportUserData:
         #     self.WEB_HANDLER.elementTarget(driver, f'{i}', By.XPATH).click()
 
-        self.uiApp.returnUiMessage(
+        self.uiApp.returnUiMessageHandler(
             f'Already Export file. will processing download file after {self.longWaitSec} sec.', 'Note')
 
         # download
         waitWithSec(sec=self.longWaitSec)
-        self.uiApp.returnUiMessage('Starting : Download file processing.')
+        self.uiApp.returnUiMessageHandler('Starting : Download file processing.')
         self.WEB_HANDLER.elementTarget(driver,
                                        '//div[@data-e2e-id="sidebar_report_and_analytis_menu"]', By.XPATH).click()
         self.WEB_HANDLER.elementTarget(driver,
@@ -189,7 +189,7 @@ class AutoEmailingAndDownlaoding:
 
             return state
         
-    def sendingTestEmails(self, uiApp, loadJsonData, email=''):
+    def directSendEmails(self, uiApp, loadJsonData, email=''):
 
         if (email != ''):
             state = True

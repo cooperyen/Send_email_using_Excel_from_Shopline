@@ -22,9 +22,9 @@ class EMAIL_HANDLER():
         risk = json.loads(check.content)['risk']
 
         if(risk != 'low'):
-            uiApp.returnUiMessage(f'{email} is {risk} risk, sending failed.', 'Warning')
+            uiApp.returnUiMessageHandler(f'{email} is {risk} risk, sending failed.', 'Warning')
         else :
-            uiApp.returnUiMessage(f'{email} is {risk} risk, start sending.')
+            uiApp.returnUiMessageHandler(f'{email} is {risk} risk, start sending.')
         
         return True if risk == 'low' else False
 
@@ -49,18 +49,18 @@ class EMAIL_HANDLER():
             
                 try:
                     message = json.loads(post.content)['message']
-                    uiApp.returnUiMessage(f'{userData["email"]} : {message}')
+                    uiApp.returnUiMessageHandler(f'{userData["email"]} : {message}')
                 except:
-                    uiApp.returnUiMessage('Mailgun setup error, please check if the api key and domain are correct', 'Warning')
+                    uiApp.returnUiMessageHandler('Mailgun setup error, please check if the api key and domain are correct', 'Warning')
                     return False
                     
 
-# email = 'tina29461526@yahoo.com.tw'
-email = 'dknick081@gmail.com'
+# # email = 'tina29461526@yahoo.com.tw'
+# email = 'dknick081@gmail.com'
 
-check = requests.get(
-    "https://api.mailgun.net/v4/address/validate",
-    auth=("api", 'key-7317a30a70357cf6309ab4fead46637d'),
-    params={"address": email})
+# check = requests.get(
+#     "https://api.mailgun.net/v4/address/validate",
+#     auth=("api", 'key-7317a30a70357cf6309ab4fead46637d'),
+#     params={"address": email})
 
-print(check.content)
+# print(check.content)

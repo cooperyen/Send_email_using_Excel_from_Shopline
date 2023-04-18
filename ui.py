@@ -7,50 +7,99 @@ from handler.excel_handler.xlrdtest import createNewExcelWithData
 from handler.web_handler.main import WEB_HANDLER
 from handler.functions_handler.json_handler import JASON_HANDLER, saveJsonFileName
 
+
+warningColor = '#D05B5B'
+lightBTN = '#54d68e'
+darkBTN = '#319960'
+mainBgColor = '#2a734b'
+mainHoverColor = '#357a54'
+secBgColor = '#1e5738'
+optionBTNColor = '#124529'
+
 # Modes: "System" (standard), "Dark", "Light"
-customtkinter.set_appearance_mode("System")
+customtkinter.set_appearance_mode("Dark")
 # Themes: "blue" (standard), "green", "dark-blue"
-customtkinter.set_default_color_theme("blue")
+# customtkinter.set_default_color_theme('blue')
+
 
 class ToplevelWindow(customtkinter.CTkToplevel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.geometry("400x300")
 
-        self.label = customtkinter.CTkLabel(self, text="ToplevelWindow")
+        # configure window.
+        self.displayWidth = self.winfo_screenwidth()  # Width of the screen
+        self.displayHeight = self.winfo_screenheight() # Height of the screen
+        self.width = 400
+        self.height = 400
+        self.x = (self.displayWidth/2) - (self.width/2)
+        self.y = (self.displayHeight/2) - (self.height/2)
+        self.title("All for one")
+        self.geometry('%dx%d+%d+%d' % (self.width, self.height, self.x, self.y))
+        self.minsize(self.width, self.height)
+        # self.maxsize(self.width, self.height)
+
+        self.label = customtkinter.CTkLabel(self, text="direct send email")
         self.label.pack(padx=20, pady=20)
         self.protocol("WM_DELETE_WINDOW", self.closed) # <-- adding the protocol
-        self.entry = customtkinter.CTkEntry(master=self, placeholder_text="CTkEntry")
-        self.entry.pack(padx=20, pady=10)
-        
+
+        self.entry = customtkinter.CTkEntry(master=self, placeholder_text="email", width=300)
+        self.entry.pack(padx=20, pady=0 )
+
+        self.entryInfo = customtkinter.CTkLabel(master=self, text="If testing multiple emails at the same time, use ' , ' to \nconnect emails.", justify="left", width=500)
+        self.entryInfo.pack(pady=5)
+
+        self.entryWarning = customtkinter.CTkLabel(master=self, text="", text_color=warningColor, font=customtkinter.CTkFont(weight="bold"))
+        self.entryWarning.pack(padx=20, pady=0)
+
         self.btn = customtkinter.CTkButton(self, command=self.email)
+        self.btn.pack(padx=20, pady=50)
         self.btn.configure(text='123')
-        self.btn.place(relx=0.5, rely=0.5)
-        self.main = ''
+        self.parentModule = ''
 
     def closed(self):
-        print(self.entry.get())
-        # self.sendEmailFunc()
         self.destroy()
 
     def email(self):
-        arg = {'cooper.rafago@gmail.com','dknick081@gmail.com'}
-        print(self.main.sendTestEmailFunc(arg))      
+        entry = self.entry.get()
+        self.entryWarning.configure(text='')
+        if(entry != ''):
+            entrySplit = entry.split(',')
+            includeAtSymbol = True
+            emails = []
+            
+            for i in entrySplit:
+                includeAtSymbol = '@' in i 
 
-    def xxxx(self, a):
-        self.main = a
+            if(includeAtSymbol):
+                # remove any spaces
+                for i in entrySplit:
+                    emails.append(i.replace(' ',''))
+                self.parentModule.directSendEmailFunc(emails)
+                self.parentModule.returnUiMessageHandler(f'A total of {len(emails)} emails were sent')   
+            else:
+                self.entryWarning.configure(text='must be include "@"')
         
+        else:
+            self.entryWarning.configure(text='emails can\'t not be empty')
 
-
-
+    def getParentModule(self, module):
+        self.parentModule = module
+        
 class App(customtkinter.CTk):
     def __init__(self):
         super().__init__()
 
         # configure window.
-        self.title("CustomTkinter complex_example.py")
-        self.geometry(f"{1500}x{800}")
-        self.minsize(1500, 800)
+        self.displayWidth = self.winfo_screenwidth()  # Width of the screen
+        self.displayHeight = self.winfo_screenheight() # Height of the screen
+        self.width = 1400
+        self.height = 800
+        self.x = (self.displayWidth/2) - (self.width/2)
+        self.y = (self.displayHeight/2) - (self.height/2)
+        self.title("All for one")
+        self.geometry('%dx%d+%d+%d' % (self.width, self.height, self.x, self.y))
+        self.minsize(self.width, self.height)
+        self.appTitle = 'ALL FOR ONE.'
 
         # configure grid layout (4x4).
         self.grid_columnconfigure(1, weight=1)
@@ -148,27 +197,40 @@ class App(customtkinter.CTk):
         self.sidebar_frame = customtkinter.CTkFrame(
             self, width=140, corner_radius=0)
         self.sidebar_frame.grid(row=0, column=0, rowspan=5, sticky="nsew")
-        self.sidebar_frame.grid_rowconfigure(5, weight=1)
+        self.sidebar_frame.grid_rowconfigure(6, weight=1)
 
         self.logo_label = customtkinter.CTkLabel(
-            self.sidebar_frame, text="CustomTkinter", font=customtkinter.CTkFont(size=20, weight="bold"))
+            self.sidebar_frame, text=self.appTitle, font=customtkinter.CTkFont(size=20, weight="bold"))
         self.logo_label.grid(row=0, column=0, padx=20, pady=(20, 10))
 
         self.appearance_mode_label = customtkinter.CTkLabel(
             self.sidebar_frame, text="Appearance Mode:", anchor="w")
-        self.appearance_mode_label.grid(row=6, column=0, padx=20, pady=(10, 0))
-        self.appearance_mode_optionemenu = customtkinter.CTkOptionMenu(self.sidebar_frame, values=[
-                                                                       "System", "Dark", "Light"], command=self.change_appearance_mode_event)
+        self.appearance_mode_label.grid(row=8, column=0, padx=20, pady=(10, 0))
+        self.appearance_mode_optionemenu = customtkinter.CTkOptionMenu(
+            self.sidebar_frame, values=[
+            "Dark", "System", "Light"],
+            command=self.changeAppearanceModeHandler,
+            fg_color=secBgColor,
+            button_color=optionBTNColor,
+            button_hover_color=optionBTNColor
+            )
 
         self.appearance_mode_optionemenu.grid(
-            row=7, column=0, padx=20, pady=(10, 10))
+            row=9, column=0, padx=20, pady=(10, 10))
         self.scaling_label = customtkinter.CTkLabel(
             self.sidebar_frame, text="UI Scaling:", anchor="w")
 
-        self.scaling_label.grid(row=8, column=0, padx=20, pady=(10, 0))
-        self.scaling_optionemenu = customtkinter.CTkOptionMenu(self.sidebar_frame, values=[
-                                                               "100%", "110%", "120%"], command=self.change_scaling_event)
-        self.scaling_optionemenu.grid(row=9, column=0, padx=20, pady=(10, 20))
+        self.scaling_label.grid(row=10, column=0, padx=20, pady=(10, 0))
+        self.scaling_optionemenu = customtkinter.CTkOptionMenu(
+            self.sidebar_frame, 
+            values=["100%", "110%", "120%"], 
+            command=self.changeScalingHandler,
+            fg_color=secBgColor,
+            button_color=optionBTNColor,
+            button_hover_color=optionBTNColor
+            )
+        
+        self.scaling_optionemenu.grid(row=11, column=0, padx=20, pady=(10, 20))
 
         # create textbox
         self.textbox = customtkinter.CTkTextbox(
@@ -177,7 +239,7 @@ class App(customtkinter.CTk):
             20, 20), pady=(20, 20), sticky="nsew")
 
         # configure color tag.
-        self.textbox.tag_config("Warning", foreground="#D05B5B")
+        self.textbox.tag_config("Warning", foreground=warningColor)
         self.textbox.tag_config("Note", foreground="#B88347")
         self.textbox.tag_config("time", foreground="#8B8B8B")
         self.tabName_email = 'target'
@@ -209,20 +271,24 @@ class App(customtkinter.CTk):
                 'command': self.fullProcessBTN,
                 'text': 'Do all of the above'
             },
-            {
-                'command': self.testEmailBTN,
-                'text': 'Send test email'
-            }
+            # {
+            #     'command': self.directSendEmailBTN,
+            #     'text': 'Send test email'
+            # }
         ]
 
         for i in range(len(ary)):
             locals()[i] = customtkinter.CTkButton(
-                self.sidebar_frame, command=ary[i]['command'])
+                self.sidebar_frame, command=ary[i]['command'], fg_color=mainBgColor, hover_color=mainHoverColor)
             locals()[i].configure(text=ary[i]['text'])
             locals()[i].grid(row=i+1, column=0, padx=20, pady=10)
 
+        directSendEmailBTN = customtkinter.CTkButton(self.sidebar_frame, command=self.directSendEmailBTN, fg_color='transparent', hover_color=mainHoverColor, border_color=mainHoverColor, border_width=2)
+        directSendEmailBTN.configure(text='Send test email', height=50)
+        directSendEmailBTN.grid(row=7, column=0, padx=20, pady=10)
+
     def settingOptionAreaContent(self):
-        self.tabview = customtkinter.CTkTabview(self, width=250)
+        self.tabview = customtkinter.CTkTabview(self, width=250, segmented_button_selected_color='white', text_color='black',segmented_button_selected_hover_color='white')
         self.tabview.grid(row=1, column=1, padx=(
             20, 20), pady=(0, 0), sticky="nsew")
         self.tabview.add(self.tabName_email)
@@ -230,7 +296,7 @@ class App(customtkinter.CTk):
         self.tabview.add(self.tabName_mailgun)
 
         tableView_tab_1 = self.tabview.tab(self.tabName_email)
-        # tableView_tab_1.grid_columnconfigure(0, weight=0)  # configure grid of individual tabs
+        # tableView_tab_1.configure(fg_color=tagColor)  # configure grid of individual tabs
         tableView_tab_2 = self.tabview.tab(self.tabName_setting)
         tableView_tab_3 = self.tabview.tab(self.tabName_mailgun)
 
@@ -259,21 +325,22 @@ class App(customtkinter.CTk):
                 customtkinter.CTkLabel(
                     tableView, text=f"{self.datas[tagName][labels]['info']}", anchor="w", font=self.font).grid(row=infoRowNum, column=1, sticky='w')
 
-                globals()[f'__ui_labelsData_{labels}'] = customtkinter.CTkEntry(
-                    tableView, width=400, font=self.font)
+                globals()[f'__ui_labelsData_{labels}'] = customtkinter.CTkEntry(tableView, width=400, font=self.font)
 
                 if (labels == 'condition'):
-                    globals()[f'__ui_labelsData_{labels}'] = customtkinter.CTkOptionMenu(master=tableView,
-                                                                                         values=['>', '<', '=', '>=', '<='])
-                    globals()[f'__ui_labelsData_{labels}'].set(
-                        loadJsonData[tagName][labels]['value'])
-                    globals()[f'__ui_labelsData_{labels}'].grid(
-                        row=1, column=1, pady=(10, 0), sticky='w')
+                    globals()[f'__ui_labelsData_{labels}'] = customtkinter.CTkOptionMenu(
+                        master=tableView,
+                        values=['>', '<', '=', '>=', '<='],
+                        fg_color=secBgColor,
+                        button_color=optionBTNColor,
+                        button_hover_color=optionBTNColor
+                        )
+                    
+                    globals()[f'__ui_labelsData_{labels}'].set(loadJsonData[tagName][labels]['value'])
+                    globals()[f'__ui_labelsData_{labels}'].grid(row=1, column=1, pady=(10, 0), sticky='w')
                 else:
-                    globals()[f'__ui_labelsData_{labels}'].grid(
-                        row=mainRowNum, column=1, pady=(10, 0))
-                    globals()[f'__ui_labelsData_{labels}'].insert(
-                        0, loadJsonData[tagName][labels]['value'])
+                    globals()[f'__ui_labelsData_{labels}'].grid(row=mainRowNum, column=1, pady=(10, 0))
+                    globals()[f'__ui_labelsData_{labels}'].insert(0, loadJsonData[tagName][labels]['value'])
 
                 infoRowNum = infoRowNum + 2
                 mainRowNum = mainRowNum + 2
@@ -282,10 +349,10 @@ class App(customtkinter.CTk):
         emailOption(tableView_tab_2, self.tabName_setting)
         emailOption(tableView_tab_3, self.tabName_mailgun)
 
-    def change_appearance_mode_event(self, new_appearance_mode: str):
+    def changeAppearanceModeHandler(self, new_appearance_mode: str):
         customtkinter.set_appearance_mode(new_appearance_mode)
 
-    def change_scaling_event(self, new_scaling: str):
+    def changeScalingHandler(self, new_scaling: str):
         new_scaling_float = int(new_scaling.replace("%", "")) / 100
         customtkinter.set_widget_scaling(new_scaling_float)
 
@@ -294,7 +361,8 @@ class App(customtkinter.CTk):
             text="Type in a number:", title="CTkInputDialog")
         print("CTkInputDialog:", dialog.get_input())
 
-    def returnUiMessage(self, value, tag=''):
+    # show message in self.textbox
+    def returnUiMessageHandler(self, value, tag=''):
         text = tag + ' : ' if tag != '' else ''
         self.textbox.configure(state='normal')
         self.textbox.insert("0.0", f'\n{text}{value}\n\n', tag)
@@ -305,7 +373,6 @@ class App(customtkinter.CTk):
         print(value)
 
     # BTN funs.
-
     def fullProcessBTN(self):
         saveSettingOptionToFile = self.saveSettingOptionToFileFunc()
 
@@ -314,9 +381,9 @@ class App(customtkinter.CTk):
             run = self.runSetting()
 
             # start
-            self.returnUiMessage(
+            self.returnUiMessageHandler(
                 'starting process, please do not control you\'re computer before finish process.', 'Note')
-            self.returnUiMessage(
+            self.returnUiMessageHandler(
                 'starting process, please do not control you\'re computer before finish process.', 'Note')
 
             # opean chrome
@@ -326,9 +393,7 @@ class App(customtkinter.CTk):
 
     # send test mail.
     #
-    def testEmailBTN(self):
-
-        
+    def directSendEmailBTN(self):
 
         if self.toplevel_window is None or not self.toplevel_window.winfo_exists():
             self.toplevel_window = ToplevelWindow(self)  # create window if its None or destroyed
@@ -336,7 +401,7 @@ class App(customtkinter.CTk):
         else:
             self.toplevel_window.focus()  # if window exists focus it
 
-        self.toplevel_window.xxxx(self)
+        self.toplevel_window.getParentModule(self)
         
           
     # send email handler
@@ -353,30 +418,32 @@ class App(customtkinter.CTk):
 
         if (saveSettingOptionToFile):
             msg = 'sending Emails processing.'
-            self.returnUiMessage(f'Starting : {msg}')
+            self.returnUiMessageHandler(f'Starting : {msg}')
 
             loadJsonData = JASON_HANDLER.loadJasonFile()
+
             run = self.runSetting()
             sendingEmails = run.sendingEmails(self, loadJsonData)
 
-            self.returnUiMessage(f'Done : {msg}')
+            self.returnUiMessageHandler(f'A total of {len(run.excelData())} emails were sent')
+            self.returnUiMessageHandler(f'Done : {msg}')
 
             return sendingEmails
         else:
             return False
 
-    def sendTestEmailFunc(self, email):
+    def directSendEmailFunc(self, email):
         saveSettingOptionToFile = self.saveSettingOptionToFileFunc()
 
         if (saveSettingOptionToFile):
-            msg = 'sending Test Emails processing.'
-            self.returnUiMessage(f'Starting : {msg}')
+            msg = 'direct sending Email processing.'
+            self.returnUiMessageHandler(f'Starting : {msg}')
 
             loadJsonData = JASON_HANDLER.loadJasonFile()
             run = self.runSetting()
-            sendingEmails = run.sendingTestEmails(self, loadJsonData, email)
-
-            self.returnUiMessage(f'Done : {msg}')
+            sendingEmails = run.directSendEmails(self, loadJsonData, email)
+            
+            self.returnUiMessageHandler(f'Done : {msg}')
 
             return sendingEmails
         else:
@@ -389,7 +456,7 @@ class App(customtkinter.CTk):
     def saveSettingOptionToFileBTN(self):
         saveSetting = self.saveSettingOptionToFileFunc()
         if (saveSetting):
-            self.returnUiMessage('Setting options saved.')
+            self.returnUiMessageHandler('Setting options saved.')
 
     def saveSettingOptionToFileFunc(self):
 
@@ -467,7 +534,7 @@ class App(customtkinter.CTk):
         # Verifies that each option Boolean and displays a Warning message if FALSE.
         for i in range(len(verifySettingList)):
             if (verifySettingList[i]['bool'] == False):
-                self.returnUiMessage(verifySettingList[i]['text'], 'Warning')
+                self.returnUiMessageHandler(verifySettingList[i]['text'], 'Warning')
                 break
 
         # if all options are True that save data to json.
@@ -490,25 +557,25 @@ class App(customtkinter.CTk):
             run = self.runSetting()
 
             # start
-            self.returnUiMessage(
+            self.returnUiMessageHandler(
                 'starting process, please do not control you\'re computer before finish process.', 'Note')
-            self.returnUiMessage(
+            self.returnUiMessageHandler(
                 'starting process, please do not control you\'re computer before finish process.', 'Note')
 
             # opean chrome
-            self.returnUiMessage('Starting : Open chrome processing.')
+            self.returnUiMessageHandler('Starting : Open chrome processing.')
 
             self.WEB_HANDLER.createChrome(
                 loadJsonData[self.tabName_setting]['chromePath']['value'])
 
             driver = self.WEB_HANDLER.run()
-            self.returnUiMessage('Done : Open chrome processing.')
+            self.returnUiMessageHandler('Done : Open chrome processing.')
 
             # get and download user data from shopline
-            self.returnUiMessage(
+            self.returnUiMessageHandler(
                 'Starting : Get all customer data processing.')
             run.getAllCustomerData(driver)
-            self.returnUiMessage('Done : Get all customer data processing.')
+            self.returnUiMessageHandler('Done : Get all customer data processing.')
 
             driver.close()
 
@@ -520,10 +587,10 @@ class App(customtkinter.CTk):
 
     def saveToExcelFunc(self):
         msg = 'saving user\'s data to excel.'
-        self.returnUiMessage(f'Starting : {msg}')
+        self.returnUiMessageHandler(f'Starting : {msg}')
         run = self.runSetting()
         createNewExcelWithData(self, run.excelData(), types=run.tag)
-        self.returnUiMessage(f'Done : {msg}')
+        self.returnUiMessageHandler(f'Done : {msg}')
 
     # functions
     #
@@ -540,7 +607,7 @@ class App(customtkinter.CTk):
         )
         return run
 
-    def returnUiMessage(self, value, tag=''):
+    def returnUiMessageHandler(self, value, tag=''):
         text = tag + ' : ' if tag != '' else ''
         self.textbox.configure(state='normal')
         self.textbox.insert("0.0", f'\n{text}{value}\n\n', tag)
@@ -569,4 +636,4 @@ class BTN_FUNCTION():
     #     run.sendingEmails(self, loadJsonData[self.tabName_mailgun])
 
     def xdd(self):
-        self.returnUiMessage('455456')
+        self.returnUiMessageHandler('455456')
