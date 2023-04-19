@@ -7,7 +7,7 @@ from handler.functions_handler.base_handler import waitWithSec
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from datetime import datetime as date
-from handler.excel_handler.xlrdtest import getExcelData, newest, downLoadPath
+from handler.excel_handler.xlrdtest import EXECL_HANDLER
 from handler.email_handler.send_email import EMAIL_HANDLER
 from handler.web_handler.main import WEB_HANDLER
 
@@ -30,11 +30,12 @@ class AutoEmailingAndDownlaoding:
         self.longWaitSec = 5
         self.reloadDownlaodPageSec = 20
         self.WEB_HANDLER = WEB_HANDLER()
+        self.EXECL_HANDLER = EXECL_HANDLER()
 
     # 方法(Method)
 
     def xlsToxlsx(self):
-        files = newest(downLoadPath)
+        files = self.EXECL_HANDLER.newest(self.EXECL_HANDLER.downLoadPath)
         fileName = os.path.basename(files).split('.')[0]
         strTime = time.strftime("%m%d%H%M%S", time.localtime())
         newFileName = f'{fileName}_{strTime}'
@@ -42,13 +43,13 @@ class AutoEmailingAndDownlaoding:
         # save as xlsx.
         excel = win32.gencache.EnsureDispatch('Excel.Application')  # 調用win32模塊
         wb = excel.Workbooks.Open(files)  # 打開需要轉換的文件
-        wb.SaveAs(f'{downLoadPath}{newFileName}.xlsx',
+        wb.SaveAs(f'{self.EXECL_HANDLER.downLoadPath}{self.EXECL_HANDLER.newFileName}.xlsx',
                   FileFormat=51)  # 文件另存爲xlsx擴展名的文件
         wb.Close()
         excel.Application.Quit()
 
         # remove as xls.
-        removeFilePath = os.path.join(downLoadPath, f'{fileName}.xls')
+        removeFilePath = os.path.join(self.EXECL_HANDLER.downLoadPath, f'{fileName}.xls')
         os.remove(removeFilePath)
 
     def checkIsDownloaded(self, beforeLength):
@@ -172,27 +173,29 @@ class AutoEmailingAndDownlaoding:
             for i in excelData:
                 name = i[1]
                 email = i[3]
-                if('@yahoo.com' not in email):
-                    if('@hotmail.com' not in email):
-                        userData = {'name': name,
-                                    'email': email,
-                                    'template': self.template,
-                                    'tag': self.tag,
-                                    'subject': loadJsonData["target"]["subject"]["value"].replace('{name}', name)
-                                    }
-                        email = EMAIL_HANDLER(loadJsonData['mailgun'])
-                        sendState = email.sendtemplateMessage(uiApp, userData)
-                        i.append(self.tag)
-                        if (sendState == False):
-                            state = False
-                            break
+                num = 0
+                userData = {'name': name,
+                            'email': email,
+                            'template': self.template,
+                            'tag': self.tag,
+                            'subject': loadJsonData["target"]["subject"]["value"].replace('{name}', name)
+                            }
+                
+                email = EMAIL_HANDLER(loadJsonData['mailgun'])
+                sendState = email.sendtemplateMessage(uiApp, userData)
+                i.append(self.tag)
+                num = num + 1
+                if (sendState == False):
+                    state = False
+                    break
 
-            return state
+            return {'state':state, 'num':num }  
         
     def directSendEmails(self, uiApp, loadJsonData, email=''):
 
         if (email != ''):
             state = True
+            num = 0
             for i in email:
                 userData = {'name': 'test name',
                             'email': i,
@@ -202,11 +205,12 @@ class AutoEmailingAndDownlaoding:
                             }
                 email = EMAIL_HANDLER(loadJsonData['mailgun'])
                 sendState = email.sendtemplateMessage(uiApp, userData)
+                num = num + 1
                 if (sendState == False):
                     state = False
                     break
 
-            return state    
+            return {'state':state, 'num':num }    
 
     def excelData(self):
-        return getExcelData(self.uiApp, condition=self.condition, findOrders=self.findOrders)
+        return self.EXECL_HANDLER.exportXlsxData(self.uiApp, condition=self.condition, findOrders=self.findOrders)

@@ -1,3 +1,9 @@
 a = ' fd  fds f'
+b = False
 isinstance(a, str)
-print(a)
+
+if(a):
+    print(b)
+
+if(b):
+    print(b)

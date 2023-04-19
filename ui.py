@@ -3,7 +3,7 @@ from handler.main import AutoEmailingAndDownlaoding
 import os
 import time
 import re
-from handler.excel_handler.xlrdtest import createNewExcelWithData
+from handler.excel_handler.xlrdtest import EXECL_HANDLER
 from handler.web_handler.main import WEB_HANDLER
 from handler.functions_handler.json_handler import JASON_HANDLER, saveJsonFileName
 
@@ -27,20 +27,20 @@ class ToplevelWindow(customtkinter.CTkToplevel):
         super().__init__(*args, **kwargs)
 
         # configure window.
-        self.displayWidth = self.winfo_screenwidth()  # Width of the screen
-        self.displayHeight = self.winfo_screenheight() # Height of the screen
+        self.displayWidth = self.winfo_screenwidth()  # <-- Width of the screen
+        self.displayHeight = self.winfo_screenheight() # <-- Height of the screen
         self.width = 400
-        self.height = 400
+        self.height = 300
         self.x = (self.displayWidth/2) - (self.width/2)
         self.y = (self.displayHeight/2) - (self.height/2)
         self.title("All for one")
         self.geometry('%dx%d+%d+%d' % (self.width, self.height, self.x, self.y))
         self.minsize(self.width, self.height)
-        # self.maxsize(self.width, self.height)
+        self.resizable(False, False)
 
         self.label = customtkinter.CTkLabel(self, text="direct send email")
         self.label.pack(padx=20, pady=20)
-        self.protocol("WM_DELETE_WINDOW", self.closed) # <-- adding the protocol
+        # self.protocol("WM_DELETE_WINDOW", self.closed) # <-- adding the protocol
 
         self.entry = customtkinter.CTkEntry(master=self, placeholder_text="email", width=300)
         self.entry.pack(padx=20, pady=0 )
@@ -49,11 +49,11 @@ class ToplevelWindow(customtkinter.CTkToplevel):
         self.entryInfo.pack(pady=5)
 
         self.entryWarning = customtkinter.CTkLabel(master=self, text="", text_color=warningColor, font=customtkinter.CTkFont(weight="bold"))
-        self.entryWarning.pack(padx=20, pady=0)
+        self.entryWarning.pack(padx=20, pady=20)
 
         self.btn = customtkinter.CTkButton(self, command=self.email)
-        self.btn.pack(padx=20, pady=50)
-        self.btn.configure(text='123')
+        self.btn.pack(padx=20, pady=10)
+        self.btn.configure(text='SEND')
         self.parentModule = ''
 
     def closed(self):
@@ -74,8 +74,8 @@ class ToplevelWindow(customtkinter.CTkToplevel):
                 # remove any spaces
                 for i in entrySplit:
                     emails.append(i.replace(' ',''))
-                self.parentModule.directSendEmailFunc(emails)
-                self.parentModule.returnUiMessageHandler(f'A total of {len(emails)} emails were sent')   
+                xs = self.parentModule.directSendEmailFunc(emails)
+                  
             else:
                 self.entryWarning.configure(text='must be include "@"')
         
@@ -88,7 +88,7 @@ class ToplevelWindow(customtkinter.CTkToplevel):
 class App(customtkinter.CTk):
     def __init__(self):
         super().__init__()
-
+        self.EXECL_HANDLER = EXECL_HANDLER()
         # configure window.
         self.displayWidth = self.winfo_screenwidth()  # Width of the screen
         self.displayHeight = self.winfo_screenheight() # Height of the screen
@@ -380,16 +380,10 @@ class App(customtkinter.CTk):
             loadJsonData = JASON_HANDLER.loadJasonFile()
             run = self.runSetting()
 
-            # start
-            self.returnUiMessageHandler(
-                'starting process, please do not control you\'re computer before finish process.', 'Note')
-            self.returnUiMessageHandler(
-                'starting process, please do not control you\'re computer before finish process.', 'Note')
-
             # opean chrome
             self.downloadUserDataFunc()
 
-            # self.saveToExcelFunc() if self.sendEmailFunc() else ''
+            self.saveToExcelFunc() if self.sendEmailFunc() else None
 
     # send test mail.
     #
@@ -424,11 +418,13 @@ class App(customtkinter.CTk):
 
             run = self.runSetting()
             sendingEmails = run.sendingEmails(self, loadJsonData)
+            print(sendingEmails)
 
-            self.returnUiMessageHandler(f'A total of {len(run.excelData())} emails were sent')
-            self.returnUiMessageHandler(f'Done : {msg}')
+            if(run.excelData() and sendingEmails['state']):
+                self.returnUiMessageHandler(f'A total of {len(run.excelData())} emails were sent')
+                self.returnUiMessageHandler(f'Done : {msg}')
 
-            return sendingEmails
+            return sendingEmails['state']
         else:
             return False
 
@@ -442,10 +438,12 @@ class App(customtkinter.CTk):
             loadJsonData = JASON_HANDLER.loadJasonFile()
             run = self.runSetting()
             sendingEmails = run.directSendEmails(self, loadJsonData, email)
-            
-            self.returnUiMessageHandler(f'Done : {msg}')
 
-            return sendingEmails
+            if(sendingEmails['state']):
+                self.returnUiMessageHandler(f'Done : {msg}')
+                self.returnUiMessageHandler(f'A total of {sendingEmails["num"]} emails were sent') 
+
+            return sendingEmails['num']
         else:
             return False
 
@@ -589,7 +587,7 @@ class App(customtkinter.CTk):
         msg = 'saving user\'s data to excel.'
         self.returnUiMessageHandler(f'Starting : {msg}')
         run = self.runSetting()
-        createNewExcelWithData(self, run.excelData(), types=run.tag)
+        self.EXECL_HANDLER.createNewExcelWithData(self, run.excelData(), types=run.tag)
         self.returnUiMessageHandler(f'Done : {msg}')
 
     # functions

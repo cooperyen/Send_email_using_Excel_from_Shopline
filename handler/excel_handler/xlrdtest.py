@@ -3,140 +3,110 @@ import openpyxl
 import os
 import time
 import xlrd
-import datetime
 
-def newest(path, suffix=None):
-    """
-    suffix: suffix for specific file, or default to find newest file but don't care about suffix.
-    """
-    if suffix:
-        files = [i for i in os.listdir(path) if i.__contains__(suffix)]
-    else:
-        files = os.listdir(path)
+
+class EXECL_HANDLER:
+    def __init__(self):
+        # title
+        self.titleList = ['顧客 ID', '全名', '手機號碼', '電郵', '訂單數', '累積金額', '最後登入時間', '會員級別', 'SEND MAIL']
+        self.path = 'Desktop'
+        self.saveFliePath = os.path.join(os.path.expanduser("~"), self.path) + '\\'
+        # DownLoad Path
+        self.downLoadPath = os.path.join(os.path.expanduser("~"), 'Downloads') + '\\'
         
-    paths = [os.path.join(path, basename) for basename in files]
-    return max(paths, key=os.path.getctime)
 
-def getRow(tables, condition='', findOrders=''):
-    arrays = []
-    for s in range(tables.ncols):
-        if (tables.cell(0, s).value == '訂單數'):
-            for a in range(1, tables.nrows):
-                orders = tables.cell(a, s).value
-                if (orders != ''):
-                    orders = int(orders)
-                    findOrders = int(findOrders)
+    def newFileName(self):
+        nowTime = time.localtime()
 
-                    match condition:
-                        case '=':
-                            if (orders == findOrders):
-                                arrays.append(a)
-                        case '>':
-                            if (orders > findOrders):
-                                arrays.append(a)
-                        case '>=':
-                            if (orders >= findOrders):
-                                arrays.append(a)
-                        case '<':
-                            if (orders < findOrders and orders != 0):
-                                arrays.append(a)
-                        case '<=':
-                            if (orders <= findOrders and orders != 0):
-                                arrays.append(a)
+        date = f'{nowTime.tm_year}{nowTime.tm_mon}{nowTime.tm_mday}{nowTime.tm_hour}{nowTime.tm_min}{nowTime.tm_sec}'
+        return f'{date}'
 
-    return arrays
+    def newestFile(self, path, suffix=None):
+        """
+        suffix: suffix for specific file, or default to find newestFile file but don't care about suffix.
+        """
+        # path = os.path.join(os.path.expanduser("~"), 'Downloads') + '\\'
+        if suffix:
+            files = [i for i in os.listdir(path) if i.__contains__(suffix)]
+        else:
+            files = os.listdir(path)
+            
+        paths = [os.path.join(path, basename) for basename in files]
+        return max(paths, key=os.path.getctime)
 
-def getRows(tables, condition='', findOrders=''):
-    arrays = []
-
-    if (condition == '' or findOrders == ''):
-        return arrays
-
-    else:
+    def matchConditionRows(self, tables, condition='', findOrders=''):
+        arrays = []
         for s in range(tables.ncols):
-            if (tables.cell(0, s).value == '電郵'):
+            if (tables.cell(0, s).value == '訂單數'):
                 for a in range(1, tables.nrows):
                     orders = tables.cell(a, s).value
                     if (orders != ''):
+                        orders = int(orders)
+                        findOrders = int(findOrders)
 
                         match condition:
                             case '=':
-                                if (orders == 'cooper.rafago@gmail.com'):
+                                if (orders == findOrders):
                                     arrays.append(a)
-                                # if (orders == 'akzophilip@gmail.com'):
-                                #     arrays.append(a)    
-                            # case '>':
-                            #     if (orders > findOrders):
-                            #         arrays.append(a)
-                            # case '>=':
-                            #     if (orders >= findOrders):
-                            #         arrays.append(a)
-                            # case '<':
-                            #     if (orders < findOrders and orders != 0):
-                            #         arrays.append(a)
-                            # case '<=':
-                            #     if (orders <= findOrders and orders != 0):
-                            #         arrays.append(a)
+                            case '>':
+                                if (orders > findOrders):
+                                    arrays.append(a)
+                            case '>=':
+                                if (orders >= findOrders):
+                                    arrays.append(a)
+                            case '<':
+                                if (orders < findOrders and orders != 0):
+                                    arrays.append(a)
+                            case '<=':
+                                if (orders <= findOrders and orders != 0):
+                                    arrays.append(a)
 
         return arrays
 
-def datas(tables, arrays):
-    array = []
+    def matchSpecifiedTitle(self, tables, arrays):
+        array = []
 
-    for a in range(len(arrays)):
-        ass = []
-        for x in range(len(titleList)):
-            for s in range(tables.ncols):
-                if (tables.cell(0, s).value == titleList[x]):
+        for i in range(len(arrays)):
+            result = []
+            for x in range(len(self.titleList)):
+                for s in range(tables.ncols):
+                    if (tables.cell(0, s).value == self.titleList[x]):
 
-                    ass.append(tables.cell(arrays[a], s).value)
+                        result.append(tables.cell(arrays[i], s).value)
 
-        array.append(ass)
+            array.append(result)
 
-    return array
+        return array
 
-def createNewExcelWithData(uiApp, data, types=''):
-    print(data)
-    saveNewExcelName = f'{newFileName}_{types}'
-    newExcel = openpyxl.Workbook()
-    newExcel.create_sheet("users", 0)
-    newExcelSheetTarget = newExcel.worksheets[0]
+    def createNewExcelWithData(self, uiApp, data, types=''):
+        saveNewExcelName = f'{self.newFileName()}_{types}'
+        newExcel = openpyxl.Workbook()
+        newExcel.create_sheet("users", 0)
+        newExcelSheetTarget = newExcel.worksheets[0]
 
-    for index in range(len(titleList)):
-        newExcelSheetTarget.cell(1, index + 1).value = titleList[index]
+        for index in range(len(self.titleList)):
+            newExcelSheetTarget.cell(1, index + 1).value = self.titleList[index]
 
-    for index in range(len(data)):
-        for arrayDataIndex in range(len(data[index])):
-            newExcelSheetTarget.cell(
-                index + 2, arrayDataIndex + 1).value = data[index][arrayDataIndex]
+        for index in range(len(data)):
+            for arrayDataIndex in range(len(data[index])):
+                newExcelSheetTarget.cell(
+                    index + 2, arrayDataIndex + 1).value = data[index][arrayDataIndex]
 
-    newExcel.save(f'{saveFliePath}' + saveNewExcelName + '.xlsx')
-    uiApp.returnUiMessageHandler(f'The file "{saveNewExcelName}" is saved at {saveFliePath}')
+        newExcel.save(f'{self.saveFliePath}' + saveNewExcelName + '.xlsx')
+        uiApp.returnUiMessageHandler(f'The file "{saveNewExcelName}" is saved at {self.saveFliePath}')
 
-def getExcelData(uiApp, condition='=', findOrders=1):
-    newestXLS = newest(downLoadPath)
+    def exportXlsxData(self, uiApp, condition='=', findOrders=1):
+        newestFile = self.newestFile(self.downLoadPath)
 
-    # return False
-    if ('.xlsx' in newestXLS):
-        data = xlrd.open_workbook(newestXLS)
-        tables = data.sheets()[0]
-        return datas(tables, getRow(tables, condition=condition, findOrders=findOrders))
-    else:
-        uiApp.returnUiMessageHandler('The newest download file is not type ".xls", please try again.','Warning')
-        return False
+        if ('.xlsx' in newestFile):
+            file = xlrd.open_workbook(newestFile)
+            tables = file.sheets()[0]
+            return self.matchSpecifiedTitle(tables, self.matchConditionRows(tables, condition=condition, findOrders=findOrders))
+        else:
+            uiApp.returnUiMessageHandler('The newest download file is not type ".xlsx", please try again.','Warning')
+            return False
 
 
 
-# Save Path
-path = 'Desktop'
-saveFliePath = os.path.join(os.path.expanduser("~"), path) + '\\'
-# DownLoad Path
-downLoadPath = os.path.join(os.path.expanduser("~"), 'Downloads') + '\\'
 
-newestXLS = newest(downLoadPath)
 
-# title
-titleList = ['顧客 ID', '全名', '手機號碼', '電郵', '訂單數',
-            '累積金額', '最後登入時間', '會員級別', 'SEND MAIL']
-
-newFileName = str(datetime.date.today()).replace('-', '')
