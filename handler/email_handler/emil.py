@@ -7,7 +7,7 @@ import json
 
 
 class EMAIL_HANDLER:
-    def __init__(self, uiApp, loadJsonData, userData):
+    def __init__(self, uiApp, loadJsonData, userData=None):
         self.tagMailgun = loadJsonData['mailgun']
         self.tagTarget = loadJsonData['target']
         self.uiApp = uiApp
@@ -18,21 +18,22 @@ class EMAIL_HANDLER:
         self.userData = userData
       
     def riskValidate(self, email):
-        check = requests.get(
-            "https://api.mailgun.net/v4/address/validate",
-            auth=("api", self.APIKEY),
-            params={"address": email})
-        risk = json.loads(check.content)['risk']
+        # check = requests.get(
+        #     "https://api.mailgun.net/v4/address/validate",
+        #     auth=("api", self.APIKEY),
+        #     params={"address": email})
+        # risk = json.loads(check.content)['risk']
 
-        if(risk != 'low'):
-            self.uiApp.returnUiMessageHandler(f'{email} is {risk} risk, sending failed.', 'Warning')
-            return False
-        else :
-            self.uiApp.returnUiMessageHandler(f'{email} is {risk} risk, start sending.')
+        # if(risk != 'low'):
+        #     self.uiApp.displayUiMessageHandler(f'{email} is {risk} risk, sending failed.', 'Warning')
+        #     return False
+        # else :
+        #     self.uiApp.displayUiMessageHandler(f'{email} is {risk} risk, start sending.')
 
         
 
-        return True if risk == 'low' else False
+        # return True if risk == 'low' else False
+        return True
     
     def sendtemplateMessage(self, userData={'name', 'email', 'template', 'tag', 'subject'}):
           
@@ -54,11 +55,11 @@ class EMAIL_HANDLER:
                     )
                     
                     message = json.loads(post.content)['message']
-                    self.uiApp.returnUiMessageHandler(f'{userData["email"]} : {message}')
+                    self.uiApp.displayUiMessageHandler(f'{userData["email"]} : {message}')
                 else:
                     return False
             except:
-                self.uiApp.returnUiMessageHandler('Mailgun setup error, please check if the api key and domain are correct', 'Warning')
+                self.uiApp.displayUiMessageHandler('Mailgun setup error, please check if the api key and domain are correct', 'Warning')
                 return False
 
     def sendingEmails(self):

@@ -9,7 +9,7 @@ from handler.web_handler.web import WEB_HANDLER
 from handler.email_handler.emil import EMAIL_HANDLER
 from handler.functions_handler.json_handler import JASON_HANDLER
 
-class MAIN_HANDLER:
+class MERGE_HANDLER:
     def __init__(self, uiApp, dowloadPath, condition, findOrders, tag, template):
         self.uiApp = uiApp
         self.condition = condition
@@ -30,17 +30,17 @@ class MAIN_HANDLER:
 
     def checkIsDownloaded(self, beforeLength):
         currentLength = len(os.listdir(self.downloadFilePath))
-        self.uiApp.returnUiMessageHandler(
+        self.uiApp.displayUiMessageHandler(
             f'Starting to check whether the download is complete', 'Note')
-        self.uiApp.returnUiMessageHandler(
+        self.uiApp.displayUiMessageHandler(
             f'Current the number of files is : {currentLength}', 'Note')
 
         if (currentLength > beforeLength):
             self.EXECL_HANDLER.xlsToxlsx()
-            self.uiApp.returnUiMessageHandler(
+            self.uiApp.displayUiMessageHandler(
                 'download completed. close processing', 'Note')
         else:
-            self.uiApp.returnUiMessageHandler(
+            self.uiApp.displayUiMessageHandler(
                 f'The download has not completed, check again after {self.longWaitSec} sec.', 'Note')
             waitWithSec(sec=self.longWaitSec)
             self.checkIsDownloaded(beforeLength)
@@ -52,7 +52,7 @@ class MAIN_HANDLER:
         beforeLength = len(os.listdir(self.downloadFilePath))
 
         if (status == '執行完成'):
-            self.uiApp.returnUiMessageHandler(
+            self.uiApp.displayUiMessageHandler(
                 f'Checking the number of files before downloading is {beforeLength}', 'Note')
             self.WEB_HANDLER.elementTarget(
                 driver, '//table//tr/td/div[@ng-click="getResultFiles(job.options.files_s3_url, job.name)"]', By.XPATH).click()
@@ -61,7 +61,7 @@ class MAIN_HANDLER:
             self.checkIsDownloaded(beforeLength)
 
         else:
-            self.uiApp.returnUiMessageHandler(
+            self.uiApp.displayUiMessageHandler(
                 f'The download button not ready, will refresh page after {self.reloadDownlaodPageSec} sec.', 'Note')
             waitWithSec(sec=self.reloadDownlaodPageSec)
             driver.refresh()
@@ -127,12 +127,12 @@ class MAIN_HANDLER:
         # for i in exportUserData:
         #     self.WEB_HANDLER.elementTarget(driver, f'{i}', By.XPATH).click()
 
-        self.uiApp.returnUiMessageHandler(
+        self.uiApp.displayUiMessageHandler(
             f'Already Export file. will processing download file after {self.longWaitSec} sec.', 'Note')
 
         # download
         waitWithSec(sec=self.longWaitSec)
-        self.uiApp.returnUiMessageHandler('Starting : Download file processing.')
+        self.uiApp.displayUiMessageHandler('Starting : Download file processing.')
         self.WEB_HANDLER.elementTarget(driver,
                                        '//div[@data-e2e-id="sidebar_report_and_analytis_menu"]', By.XPATH).click()
         self.WEB_HANDLER.elementTarget(driver,

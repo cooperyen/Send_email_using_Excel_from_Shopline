@@ -93,7 +93,8 @@ class EXECL_HANDLER:
                     index + 2, arrayDataIndex + 1).value = data[index][arrayDataIndex]
 
         newExcel.save(f'{self.saveFliePath}' + saveNewExcelName + '.xlsx')
-        uiApp.returnUiMessageHandler(f'The file "{saveNewExcelName}" is saved at {self.saveFliePath}')
+        uiApp.displayUiMessageHandler(f'The file "{saveNewExcelName}" is saved at {self.saveFliePath}')
+        
 
     def exportXlsxData(self, uiApp, condition='=', findOrders=1):
         newestFile = self.newestFile(self.downLoadPath)
@@ -103,7 +104,7 @@ class EXECL_HANDLER:
             tables = file.sheets()[0]
             return self.matchSpecifiedTitle(tables, self.matchConditionRows(tables, condition=condition, findOrders=findOrders))
         else:
-            uiApp.returnUiMessageHandler('The newest download file is not type ".xlsx", please try again.','Warning')
+            uiApp.displayUiMessageHandler('The newest download file is not type ".xlsx", please try again.','Warning')
             return False
 
     def xlsToxlsx(self):
