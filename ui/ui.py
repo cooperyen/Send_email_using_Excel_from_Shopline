@@ -14,94 +14,17 @@ secBgColor = '#1e5738'
 optionBTNColor = '#124529'
 
 # Modes: 'System' (standard), 'Dark', 'Light'
-customtkinter.set_appearance_mode('Dark')
-
 # Themes: 'blue' (standard), 'green', 'dark-blue'
+
+customtkinter.set_appearance_mode('Dark')
 # customtkinter.set_default_color_theme('blue')
 
 
-class ToplevelWindow(customtkinter.CTkToplevel):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        #### Configure window.
-        # Width of the screen
-        self.displayWidth = self.winfo_screenwidth()  
-        # Height of the screen
-        self.displayHeight = self.winfo_screenheight()
-        self.width = 400
-        self.height = 300
 
 
-        #### Setting.
-        self.minsize(self.width, self.height)
-        self.resizable(False, False)
-        # Window title
-        self.title('Send test email')
 
 
-        #### Coordinate window.
-        self.x = (self.displayWidth/2) - (self.width/2)
-        self.y = (self.displayHeight/2) - (self.height/2)
-        self.geometry('%dx%d+%d+%d' % (self.width, self.height, self.x, self.y))
-
-
-        #### Content layout.
-        # title.
-        self.title = customtkinter.CTkLabel(self, text='Send test email') 
-        self.title.pack(padx=20, pady=20)
-        # entry.
-        self.entryBox = customtkinter.CTkEntry(master=self, placeholder_text='email', width=300)
-        self.entryBox.pack(padx=20, pady=0 )
-        # description.
-        self.entryInfo = customtkinter.CTkLabel(master=self, text='If testing multiple emails at the same time, use  \',\'  to \nconnect emails.', justify='left', width=500)
-        self.entryInfo.pack(pady=5)
-        # Warning info.
-        self.entryWarning = customtkinter.CTkLabel(master=self, text='', text_color=warningColor, font=customtkinter.CTkFont(weight='bold'))
-        self.entryWarning.pack(padx=20, pady=20)
-        # confirm button
-        self.btn = customtkinter.CTkButton(self, command=self.sendEmail)
-        self.btn.pack(padx=20, pady=10)
-        self.btn.configure(text='SEND')
-        
-
-        #### Parent module
-        self.parentModule = ''
-
-
-    def sendEmail(self):
-        entryBoxValue = self.entryBox.get()
-    
-        if(entryBoxValue != ''):
-            entrySplit = entryBoxValue.split(',')
-            emails = []
-            
-            for i in entrySplit:
-                includeAtSymbol = True if '@' in i and len(i) >= 3 else False
-                emailFormat = True if i.split('@')[0] !='' and i.split('@')[1] !='' else False
-
-            if(includeAtSymbol and emailFormat):
-                # remove any spaces
-                for i in entrySplit:
-                    emails.append(i.replace(' ',''))
-                    self.parentModule.sendTestEmailHandler(emails)
-                  
-            else:
-                self.entryWarning.configure(text='email format not correct.')
-        
-        else:
-            self.entryWarning.configure(text='emails can\'t not be empty')
-
-    # need def sendTestEmailHandler that pass parent module.
-    def getParentModule(self, module):
-        self.parentModule = module
-
-
-class SidebarFrame(customtkinter.CTkFrame):
-    def __init__(self, master):
-        super().__init__(master)
-
-
+# Main window view.
 class App(customtkinter.CTk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -293,7 +216,9 @@ class App(customtkinter.CTk):
         self.meunButtonsContent()
         self.settingOptionAreaContent()
 
-    # export buttons layout.
+    """
+    export buttons layout.
+    """
     def meunButtonsContent(self):
         configureBTNS = [
             {
@@ -332,7 +257,9 @@ class App(customtkinter.CTk):
         sendTestEmailBTN.grid(row=7, column=0, padx=20, pady=10)
 
 
-    # export setting table layout.
+    """
+    export setting table layout.
+    """
     def settingOptionAreaContent(self):
         # create table view.
         self.tabview = customtkinter.CTkTabview(self, width=250, segmented_button_selected_color='white', text_color='black',segmented_button_selected_hover_color='white')
@@ -401,18 +328,24 @@ class App(customtkinter.CTk):
         tagsOption(tableViewMailgun, self.tabNameMailgun)
 
 
-    # Switch appearance mode.
+    """
+    Switch appearance mode.
+    """
     def switchAppearanceModeHandler(self, newAppearanceMode: str):
         customtkinter.set_appearance_mode(newAppearanceMode)
 
 
-    # Switch scaling mode.
+    """
+    Switch scaling mode.
+    """
     def switchScalingModeHandler(self, newScaling: str):
         new_scaling_float = int(newScaling.replace('%', '')) / 100
         customtkinter.set_widget_scaling(new_scaling_float)
 
 
-    # Display message in "self.textbox" container.
+    """
+    Display message in "self.textbox" container.
+    """
     def displayUiMessageHandler(self, value, tag=''):
         text = tag + ' : ' if tag != '' else ''
         self.textbox.configure(state='normal')
@@ -424,7 +357,9 @@ class App(customtkinter.CTk):
         print(value)
 
 
-    # Execute all process btn.
+    """
+    Execute all process btn.
+    """
     def executeAllProcessBTN(self):
         saveSettingOptionAsFile = self.saveSettingOptionAsFileHandler()
 
@@ -438,7 +373,9 @@ class App(customtkinter.CTk):
             self.saveAsExcelHanlder() if self.sendEmailHandler() else None
 
     
-    # send email handler.
+    """
+    send email handler.
+    """
     # @return Value or False.
     def sendEmailHandler(self):
         saveSettingOptionAsFile = self.saveSettingOptionAsFileHandler()
@@ -469,7 +406,9 @@ class App(customtkinter.CTk):
             self.saveToExcelBTN()
 
 
-    # send a test mail.
+    """
+    send a test mail.
+    """
     # @return Value or False.
     def sendTestEmailHandler(self, email):
         saveSettingOptionAsFile = self.saveSettingOptionAsFileHandler()
@@ -502,7 +441,9 @@ class App(customtkinter.CTk):
         self.toplevel_window.getParentModule(self)
         
 
-    # save GUI options as a file.
+    """
+    save GUI options as a file.
+    """
     # @return boolen.
     def saveSettingOptionAsFileHandler(self):
 
@@ -593,7 +534,9 @@ class App(customtkinter.CTk):
             self.displayUiMessageHandler('Setting options saved.')
             
 
-    # download users data from "SHOPLINE"
+    """
+    download users data from "SHOPLINE" website.
+    """
     def downloadUserDataHandler(self):
 
         saveSettingOptionAsFile = self.saveSettingOptionAsFileHandler()
@@ -628,7 +571,9 @@ class App(customtkinter.CTk):
         self.downloadUserDataHandler()
 
 
-    # save data as Excel handler
+    """
+    save data as local excel handler.
+    """
     def saveAsExcelHanlder(self):
 
         msg = 'saving user\'s data to excel.'
@@ -642,20 +587,102 @@ class App(customtkinter.CTk):
         self.saveAsExcelHanlder()
 
 
-    # return data.
+    # @return class
     def mergeHandler(self):
         loadJsonData = self.JASON_HANDLER.loadJasonFile()
         result = MERGE_HANDLER(
-            self,
-            loadJsonData[self.tabNameSetting]['chromePath']['value'],
-            loadJsonData[self.tabNameEmail]['condition']['value'],
-            loadJsonData[self.tabNameEmail]['findOrders']['value'],
-            loadJsonData[self.tabNameEmail]['tag']['value'],
-            loadJsonData[self.tabNameEmail]['template']['value']
+            {
+                'uiApp':self,
+                'dowloadPath':loadJsonData[self.tabNameSetting]['chromePath']['value'],
+                'condition':loadJsonData[self.tabNameEmail]['condition']['value'],
+                'findOrders':loadJsonData[self.tabNameEmail]['findOrders']['value'],
+                'tag':loadJsonData[self.tabNameEmail]['tag']['value'],
+                'template':loadJsonData[self.tabNameEmail]['template']['value']
+            }
         )
+
         return result
+
+
+# window Frame.
+class SidebarFrame(customtkinter.CTkFrame):
+    def __init__(self, master):
+        super().__init__(master)
+
+
+# sub window view.
+class ToplevelWindow(customtkinter.CTkToplevel):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        #### Configure window.
+        # Width of the screen
+        self.displayWidth = self.winfo_screenwidth()  
+        # Height of the screen
+        self.displayHeight = self.winfo_screenheight()
+        self.width = 400
+        self.height = 300
+
+
+        #### Setting.
+        self.minsize(self.width, self.height)
+        self.resizable(False, False)
+        # Window title
+        self.title('Send test email')
+
+
+        #### Coordinate window.
+        self.x = (self.displayWidth/2) - (self.width/2)
+        self.y = (self.displayHeight/2) - (self.height/2)
+        self.geometry('%dx%d+%d+%d' % (self.width, self.height, self.x, self.y))
+
+
+        #### Content layout.
+        # title.
+        self.title = customtkinter.CTkLabel(self, text='Send test email') 
+        self.title.pack(padx=20, pady=20)
+        # entry.
+        self.entryBox = customtkinter.CTkEntry(master=self, placeholder_text='email', width=300)
+        self.entryBox.pack(padx=20, pady=0 )
+        # description.
+        self.entryInfo = customtkinter.CTkLabel(master=self, text='If testing multiple emails at the same time, use  \',\'  to \nconnect emails.', justify='left', width=500)
+        self.entryInfo.pack(pady=5)
+        # Warning info.
+        self.entryWarning = customtkinter.CTkLabel(master=self, text='', text_color=warningColor, font=customtkinter.CTkFont(weight='bold'))
+        self.entryWarning.pack(padx=20, pady=20)
+        # confirm button
+        self.btn = customtkinter.CTkButton(self, command=self.sendEmail)
+        self.btn.pack(padx=20, pady=10)
+        self.btn.configure(text='SEND')
+        
+
+        #### Parent module
+        self.parentModule = ''
+
+
+    def sendEmail(self):
+        entryBoxValue = self.entryBox.get()
     
+        if(entryBoxValue != ''):
+            entrySplit = entryBoxValue.split(',')
+            emails = []
+            
+            for i in entrySplit:
+                includeAtSymbol = True if '@' in i and len(i) >= 3 else False
+                emailFormat = True if i.split('@')[0] !='' and i.split('@')[1] !='' else False
 
+            if(includeAtSymbol and emailFormat):
+                # remove any spaces
+                for i in entrySplit:
+                    emails.append(i.replace(' ',''))
+                    self.parentModule.sendTestEmailHandler(emails)
+                  
+            else:
+                self.entryWarning.configure(text='email format not correct.')
+        
+        else:
+            self.entryWarning.configure(text='emails can\'t not be empty')
 
-
-
+    # need def sendTestEmailHandler that pass parent module.
+    def getParentModule(self, module):
+        self.parentModule = module

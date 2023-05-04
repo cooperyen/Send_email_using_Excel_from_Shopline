@@ -94,33 +94,52 @@ class EXECL_HANDLER:
 
         newExcel.save(f'{self.saveFliePath}' + saveNewExcelName + '.xlsx')
         uiApp.displayUiMessageHandler(f'The file "{saveNewExcelName}" is saved at {self.saveFliePath}')
-        
 
+
+    """
+    export data by customers quantity of order and condition from xlsx file.
+    """
+    # @return Value or False.
     def exportXlsxData(self, uiApp, condition='=', findOrders=1):
         newestFile = self.newestFile(self.downLoadPath)
 
         if ('.xlsx' in newestFile):
+            # load file most.
             file = xlrd.open_workbook(newestFile)
+            # select first sheet.
             tables = file.sheets()[0]
             return self.matchSpecifiedTitle(tables, self.matchConditionRows(tables, condition=condition, findOrders=findOrders))
         else:
             uiApp.displayUiMessageHandler('The newest download file is not type ".xlsx", please try again.','Warning')
             return False
 
-    def xlsToxlsx(self):
-        files = self.newestFile(self.downLoadPath)
-        fileName = os.path.basename(files).split('.')[0]
+
+    """
+    xls save as xlsx.
+    """
+    def xlsToXlsx(self):
+        file = self.newestFile(self.downLoadPath)
+        fileName = os.path.basename(file).split('.')[0]
         strTime = time.strftime("%m%d%H%M%S", time.localtime())
 
-        # save as xlsx.
-        excel = win32.gencache.EnsureDispatch('Excel.Application')  # 調用win32模塊
-        wb = excel.Workbooks.Open(files)  # 打開需要轉換的文件
-        wb.SaveAs(f'{self.downLoadPath}{self.newFileName()}.xlsx',
-                  FileFormat=51)  # 文件另存爲xlsx擴展名的文件
+        # 1. use win32 module plays excel.
+        excel = win32.gencache.EnsureDispatch('Excel.Application')
+
+        # 2. Load newest file which suffix is xls.
+        """
+        The file downloaded from shopline suffix is xls.
+        """
+        wb = excel.Workbooks.Open(file)
+
+        # 3. save as xlsx.
+        wb.SaveAs(f'{self.downLoadPath}{self.newFileName()}.xlsx', FileFormat=51)
         wb.Close()
         excel.Application.Quit()
 
-        # remove as xls.
+        # remove xls flie.
+        """
+        will continue processing with xlsx, so remove xls to make sure next step correctly load xlsx file.
+        """
         removeFilePath = os.path.join(self.downLoadPath, f'{fileName}.xls')
         os.remove(removeFilePath)
 

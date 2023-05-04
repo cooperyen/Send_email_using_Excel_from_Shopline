@@ -9,20 +9,32 @@ from handler.web_handler.web import WEB_HANDLER
 from handler.email_handler.emil import EMAIL_HANDLER
 from handler.functions_handler.json_handler import JASON_HANDLER
 
+
+r"""
+1. Combine each handlers in class MERGE_HANDLER.
+2. make handler router for export.
+"""
+
 class MERGE_HANDLER:
-    def __init__(self, uiApp, dowloadPath, condition, findOrders, tag, template):
-        self.uiApp = uiApp
-        self.condition = condition
-        self.findOrders = findOrders
-        # self.excelData = getExcelData(
-        #     condition=condition, findOrders=findOrders)
-        self.dowloadPath = dowloadPath
+    def __init__(self, ary = {
+        'uiApp':None,
+        'dowloadPath':None,
+        'condition':None,
+        'findOrders':None,
+        'tag':None,
+        'template':None
+        }):
+
+        self.uiApp = ary['uiApp']
+        self.condition = ary['condition']
+        self.findOrders = ary['findOrders']
+        self.dowloadPath = ary['dowloadPath']
         self.path = 'Downloads'
         self.downloadFilePath = os.path.join(
             os.path.expanduser("~"), self.path) + '\\'
 
-        self.tag = tag
-        self.template = template
+        self.tag = ary['tag']
+        self.template = ary['template']
         self.longWaitSec = 5
         self.reloadDownlaodPageSec = 20
         self.WEB_HANDLER = WEB_HANDLER()
@@ -36,7 +48,7 @@ class MERGE_HANDLER:
             f'Current the number of files is : {currentLength}', 'Note')
 
         if (currentLength > beforeLength):
-            self.EXECL_HANDLER.xlsToxlsx()
+            self.EXECL_HANDLER.xlsToXlsx()
             self.uiApp.displayUiMessageHandler(
                 'download completed. close processing', 'Note')
         else:
@@ -116,16 +128,17 @@ class MERGE_HANDLER:
         driver.get(self.WEB_HANDLER.driverURL)
 
         # export user data
-        exportUserData = ['//div[@data-e2e-id="sidebar_customer_management_menu"]',
-                          '//a[@data-e2e-id="sidebar_customer_management_submenu_users"]',
-                          '//a[@ng-click="showExportPicker()"]',
-                          '//div[@class="option-report"]/input[@name="allCustomers"]',
-                          '//div/a[@ng-click="onSelectAllFields()"]',
-                          '//button[@ng-click="export()"]'
-                          ]
+        exportUserData = [
+            '//div[@data-e2e-id="sidebar_customer_management_menu"]',
+            '//a[@data-e2e-id="sidebar_customer_management_submenu_users"]',
+            '//a[@ng-click="showExportPicker()"]',
+            '//div[@class="option-report"]/input[@name="allCustomers"]',
+            '//div/a[@ng-click="onSelectAllFields()"]',
+            '//button[@ng-click="export()"]'
+            ]
 
-        # for i in exportUserData:
-        #     self.WEB_HANDLER.elementTarget(driver, f'{i}', By.XPATH).click()
+        for i in exportUserData:
+            self.WEB_HANDLER.elementTarget(driver, f'{i}', By.XPATH).click()
 
         self.uiApp.displayUiMessageHandler(
             f'Already Export file. will processing download file after {self.longWaitSec} sec.', 'Note')
@@ -133,10 +146,8 @@ class MERGE_HANDLER:
         # download
         waitWithSec(sec=self.longWaitSec)
         self.uiApp.displayUiMessageHandler('Starting : Download file processing.')
-        self.WEB_HANDLER.elementTarget(driver,
-                                       '//div[@data-e2e-id="sidebar_report_and_analytis_menu"]', By.XPATH).click()
-        self.WEB_HANDLER.elementTarget(driver,
-                                       '//a[@data-e2e-id="sidebar_report_and_analytis_submenu_jobs"]', By.XPATH).click()
+        self.WEB_HANDLER.elementTarget(driver, '//div[@data-e2e-id="sidebar_report_and_analytis_menu"]', By.XPATH).click()
+        self.WEB_HANDLER.elementTarget(driver, '//a[@data-e2e-id="sidebar_report_and_analytis_submenu_jobs"]', By.XPATH).click()
 
         self.checkDownloadBtnAvailable(driver)
     
