@@ -20,11 +20,9 @@ customtkinter.set_appearance_mode('Dark')
 # customtkinter.set_default_color_theme('blue')
 
 
-
-
-
-
-# Main window view.
+"""
+Main window view.
+"""
 class App(customtkinter.CTk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -39,6 +37,8 @@ class App(customtkinter.CTk):
         self.displayHeight = self.winfo_screenheight() 
         self.width = 1400
         self.height = 800
+
+        self.emailsData = ''
 
 
         #### Setting.
@@ -393,14 +393,17 @@ class App(customtkinter.CTk):
             sendingEmails = emailHandler.sendingEmails()
 
             if(exportXlsxData and sendingEmails['state']):
-                self.displayUiMessageHandler(f'A total of {len(exportXlsxData)} emails were sent')
+                self.displayUiMessageHandler(f'A total of {sendingEmails["num"]} emails were sent')
                 self.displayUiMessageHandler(f'Done : {msg}')
 
+
+            self.emailsData = sendingEmails['userData']
             return sendingEmails['state']
         else:
             return False
     def sendEmailBTN(self):
         sendEmail = self.sendEmailHandler()
+
 
         if (sendEmail):
             self.saveToExcelBTN()
@@ -580,14 +583,14 @@ class App(customtkinter.CTk):
         self.displayUiMessageHandler(f'Starting : {msg}')
 
         mergeHandler = self.mergeHandler()
-        self.EXECL_HANDLER.createNewExcelWithData(self, mergeHandler.exportXlsxData(), types=mergeHandler.tag)
+        self.EXECL_HANDLER.createNewExcelWithData(self, self.emailsData, types=mergeHandler.tag)
 
         self.displayUiMessageHandler(f'Done : {msg}')
     def saveToExcelBTN(self):
         self.saveAsExcelHanlder()
 
 
-    # @return class
+    # @return class MERGE_HANDLER.
     def mergeHandler(self):
         loadJsonData = self.JASON_HANDLER.loadJasonFile()
         result = MERGE_HANDLER(
@@ -604,13 +607,17 @@ class App(customtkinter.CTk):
         return result
 
 
-# window Frame.
+"""
+window Frame.
+"""
 class SidebarFrame(customtkinter.CTkFrame):
     def __init__(self, master):
         super().__init__(master)
 
 
-# sub window view.
+"""
+sub window view.
+"""
 class ToplevelWindow(customtkinter.CTkToplevel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

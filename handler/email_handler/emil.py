@@ -18,28 +18,36 @@ class EMAIL_HANDLER:
         self.userData = userData
       
     def riskValidate(self, email):
+
+        url = f"https://api.millionverifier.com/api/v3/?api=Ob3F6xDemZzkFV4QVppLjzOvs&email={email}&timeout=10"
+
+        response = requests.request("GET", url)
+        
+        quality = json.loads(response.content)['quality']
+
         # check = requests.get(
         #     "https://api.mailgun.net/v4/address/validate",
         #     auth=("api", self.APIKEY),
         #     params={"address": email})
         # risk = json.loads(check.content)['risk']
 
-        # if(risk != 'low'):
-        #     self.uiApp.displayUiMessageHandler(f'{email} is {risk} risk, sending failed.', 'Warning')
-        #     return False
-        # else :
-        #     self.uiApp.displayUiMessageHandler(f'{email} is {risk} risk, start sending.')
+
+        if(quality != 'good'):
+            self.uiApp.displayUiMessageHandler(f'{email} quality is {quality}, sending failed.', 'Warning')
+            return False
+        else :
+            self.uiApp.displayUiMessageHandler(f'{email} quality is {quality}, start sending.')
 
         
 
-        # return True if risk == 'low' else False
-        return True
+        return True if quality == 'good' else False
+        # return True
     
     def sendtemplateMessage(self, userData={'name', 'email', 'template', 'tag', 'subject'}):
           
         if ('name' and 'template' and 'email' and 'tag' and 'subject' in self.tagTarget.keys()):
   
-            try:
+            # try:
                 if(self.riskValidate(userData["email"])):
 
                     post = requests.post(
@@ -56,38 +64,51 @@ class EMAIL_HANDLER:
                     
                     message = json.loads(post.content)['message']
                     self.uiApp.displayUiMessageHandler(f'{userData["email"]} : {message}')
+
                 else:
                     return False
-            except:
-                self.uiApp.displayUiMessageHandler('Mailgun setup error, please check if the api key and domain are correct', 'Warning')
-                return False
+
+
+
+
+            #     else:
+            #         self.uiApp.displayUiMessageHandler(f'{userData["email"]} : False')
+            #         return False
+            # except:
+            #     self.uiApp.displayUiMessageHandler('Mailgun setup error, please check if the api key and domain are correct', 'Warning')
+            #     return False
 
     def sendingEmails(self):
 
         excelData = self.userData
 
+        num = 0
         if (excelData != False):
             state = True
             for i in excelData:
                 name = i[1]
                 email = i[3]
-                num = 0
                 userData = {'name': name,
                             'email': email,
-                            'template': self.tagTarget['template'],
-                            'tag': self.tagTarget['tag'],
+                            'template': self.tagTarget['template']['value'],
+                            'tag': self.tagTarget['tag']['value'],
                             'subject': self.tagTarget["subject"]["value"].replace('{name}', 'test name')
                             }
                 
                 sendState = self.sendtemplateMessage(userData)
-                i.append(self.tagTarget['tag'])
                 num = num + 1
+
+
                 if (sendState == False):
                     num = num - 1
-                    state = False
-                    break
+                    i.append('Failed')
+                    # state = False
+                    # break
 
-            return {'state':state, 'num':num }  
+
+
+
+        return {'state':state, 'num':num, 'userData':excelData }  
         
     def directSendEmails(self, email=None):
 
@@ -97,8 +118,8 @@ class EMAIL_HANDLER:
             for i in email:
                 userData = {'name': 'test name',
                             'email': i,
-                            'template': self.tagTarget['template'],
-                            'tag': self.tagTarget['tag'],
+                            'template': self.tagTarget['template']['value'],
+                            'tag': self.tagTarget['tag']['value'],
                             'subject': self.tagTarget["subject"]["value"].replace('{name}', 'test name')
                             }
                 sendState = self.sendtemplateMessage(userData)

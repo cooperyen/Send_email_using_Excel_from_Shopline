@@ -1,23 +1,7 @@
-# Importing Tkinter module
-from tkinter import *
-from tkinter.ttk import *
+import requests
 
-# Creating master Tkinter window
-master = Tk()
+url = "https://api.millionverifier.com/api/v3/?api=Ob3F6xDemZzkFV4QVppLjzOvs&email=cooper.rafagodfsdfs@gmdail.com&timeout=10"
 
-# Creating object of photoimage class
-# Image should be in the same folder
-# in which script is saved
-p1 = PhotoImage(file='icon.png')
+response = requests.request("GET", url)
 
-# Setting icon of master window
-master.iconphoto(False, p1)
-
-# Creating button
-b = Button(master, text='Click me !')
-b.pack(side=TOP)
-
-# Infinite loop can be terminated by
-# keyboard or mouse interrupt
-# or by any predefined function (destroy())
-mainloop()
+print(response.text)
