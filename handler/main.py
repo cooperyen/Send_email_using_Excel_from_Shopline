@@ -10,11 +10,10 @@ from handler.email_handler.emil import EMAIL_HANDLER
 from handler.functions_handler.json_handler import JASON_HANDLER
 
 
-r"""
+"""
 1. Combine each handlers in class MERGE_HANDLER.
 2. make handler router for export.
 """
-
 class MERGE_HANDLER:
     def __init__(self, ary = {
         'uiApp':None,
@@ -40,94 +39,127 @@ class MERGE_HANDLER:
         self.WEB_HANDLER = WEB_HANDLER()
         self.EXECL_HANDLER = EXECL_HANDLER()
 
-    def checkIsDownloaded(self, beforeLength):
-        currentLength = len(os.listdir(self.downloadFilePath))
-        self.uiApp.displayUiMessageHandler(
-            f'Starting to check whether the download is complete', 'Note')
-        self.uiApp.displayUiMessageHandler(
-            f'Current the number of files is : {currentLength}', 'Note')
-
-        if (currentLength > beforeLength):
-            self.EXECL_HANDLER.xlsToXlsx()
-            self.uiApp.displayUiMessageHandler(
-                'download completed. close processing', 'Note')
-        else:
-            self.uiApp.displayUiMessageHandler(
-                f'The download has not completed, check again after {self.longWaitSec} sec.', 'Note')
-            waitWithSec(sec=self.longWaitSec)
-            self.checkIsDownloaded(beforeLength)
-
+        
+    """
+    check the download button is ready on the page.
+    """
     def checkDownloadBtnAvailable(self, driver):
         waitWithSec()
-        status = self.WEB_HANDLER.elementTarget(
+
+        statesOfdownloadBTN = self.WEB_HANDLER.elementTarget(
             driver, '//table//tr/td/div[@ng-class="getLabelClass(job.status)"]', By.XPATH).text
+        
+        # number of current files before check is downloaded.
         beforeLength = len(os.listdir(self.downloadFilePath))
 
-        if (status == '執行完成'):
+        # states: 執行完成, 處理中
+        if (statesOfdownloadBTN == '執行完成'):
             self.uiApp.displayUiMessageHandler(
                 f'Checking the number of files before downloading is {beforeLength}', 'Note')
+            
             self.WEB_HANDLER.elementTarget(
                 driver, '//table//tr/td/div[@ng-click="getResultFiles(job.options.files_s3_url, job.name)"]', By.XPATH).click()
 
             waitWithSec(sec=3)
+
             self.checkIsDownloaded(beforeLength)
 
         else:
             self.uiApp.displayUiMessageHandler(
                 f'The download button not ready, will refresh page after {self.reloadDownlaodPageSec} sec.', 'Note')
+            
             waitWithSec(sec=self.reloadDownlaodPageSec)
+            
+            # refresh web page. 
             driver.refresh()
+
+            # do check again.
             self.checkDownloadBtnAvailable(driver)
 
-    def inputAndSaveTag_remarkController(self, text, driver):
 
-        remark = self.WEB_HANDLER.elementTarget(
-            driver, '//textarea[@placeholder="請輸入顧客備註"]', By.XPATH)
+    """
+    check the file is downloaded.
+    """
+    def checkIsDownloaded(self, beforeLength):
 
-        remark.click()
-        waitWithSec()
-        remark.send_keys(Keys.CONTROL, 'a')
-        waitWithSec()
-        remark.send_keys(text)
-        self.WEB_HANDLER.elementTarget(
-            driver, '//div[@ng-if="editAccess()"]/a[@ng-click="save()"]', By.XPATH).click()
+        # number of current files.
+        currentLength = len(os.listdir(self.downloadFilePath))
 
-    def inputAndSaveTag(self, driver):
-        waitWithSec(sec=2)
+        self.uiApp.displayUiMessageHandler(
+            f'Starting to check whether the download is complete', 'Note')
+        self.uiApp.displayUiMessageHandler(
+            f'Current the number of files is : {currentLength}', 'Note')
 
-        USERURL = 'https://admin.shoplineapp.com/admin/rafagogorafa154/users/'
+        # check if the current file count is higher than before or not.
+        if (currentLength > beforeLength):
 
-        waitWithSec(sec=3)
-        excelData = getExcelData(
-            self.uiApp, condition=self.condition, findOrders=self.findOrders)
+            self.EXECL_HANDLER.xlsToXlsx()
 
-        for i in excelData:
-            driver.get(USERURL+i[0])
-            waitWithSec()
+            self.uiApp.displayUiMessageHandler(
+                'download completed. close processing', 'Note')
+            
+        else:
+            self.uiApp.displayUiMessageHandler(
+                f'The download has not completed, check again after {self.longWaitSec} sec.', 'Note')
+            waitWithSec(sec=self.longWaitSec)
+            # do check again.
+            self.checkIsDownloaded(beforeLength)
 
-            try:
-                text = self.WEB_HANDLER.elementTarget(
-                    driver, '//p[@ng-bind-html="user.memo"]', By.XPATH).text + f'.{self.tag}'
+    
+    # def inputAndSaveTag_remarkController(self, text, driver):
 
-                self.WEB_HANDLER.elementTarget(
-                    driver, '//a[@ng-click="edit()"]', By.XPATH).click()
+    #     remark = self.WEB_HANDLER.elementTarget(
+    #         driver, '//textarea[@placeholder="請輸入顧客備註"]', By.XPATH)
 
-                self.inputAndSaveTag_remarkController(text)
+    #     remark.click()
+    #     waitWithSec()
+    #     remark.send_keys(Keys.CONTROL, 'a')
+    #     waitWithSec()
+    #     remark.send_keys(text)
+    #     self.WEB_HANDLER.elementTarget(
+    #         driver, '//div[@ng-if="editAccess()"]/a[@ng-click="save()"]', By.XPATH).click()
 
-            except NoSuchElementException:
-                text = self.tag
-                self.inputAndSaveTag_remarkController(text)
+    # def inputAndSaveTag(self, driver):
+    #     waitWithSec(sec=2)
 
-        waitWithSec(sec=2)
-        driver.close()
+    #     USERURL = 'https://admin.shoplineapp.com/admin/rafagogorafa154/users/'
+
+    #     waitWithSec(sec=3)
+    #     excelData = getExcelData(
+    #         self.uiApp, condition=self.condition, findOrders=self.findOrders)
+
+    #     for i in excelData:
+    #         driver.get(USERURL+i[0])
+    #         waitWithSec()
+
+    #         try:
+    #             text = self.WEB_HANDLER.elementTarget(
+    #                 driver, '//p[@ng-bind-html="user.memo"]', By.XPATH).text + f'.{self.tag}'
+
+    #             self.WEB_HANDLER.elementTarget(
+    #                 driver, '//a[@ng-click="edit()"]', By.XPATH).click()
+
+    #             self.inputAndSaveTag_remarkController(text)
+
+    #         except NoSuchElementException:
+    #             text = self.tag
+    #             self.inputAndSaveTag_remarkController(text)
+
+    #     waitWithSec(sec=2)
+    #     driver.close()
+
 
     def getAllCustomerData(self, driver):
 
+        # maximize the browser window.
         driver.maximize_window()
+
         waitWithSec()
+
+        # get to shopline admin page.
         driver.get(self.WEB_HANDLER.driverURL)
 
-        # export user data
+        # export user data click steps.
         exportUserData = [
             '//div[@data-e2e-id="sidebar_customer_management_menu"]',
             '//a[@data-e2e-id="sidebar_customer_management_submenu_users"]',
@@ -143,13 +175,16 @@ class MERGE_HANDLER:
         self.uiApp.displayUiMessageHandler(
             f'Already Export file. will processing download file after {self.longWaitSec} sec.', 'Note')
 
-        # download
+        # download setp
         waitWithSec(sec=self.longWaitSec)
         self.uiApp.displayUiMessageHandler('Starting : Download file processing.')
+
+        # download user data click steps.
         self.WEB_HANDLER.elementTarget(driver, '//div[@data-e2e-id="sidebar_report_and_analytis_menu"]', By.XPATH).click()
         self.WEB_HANDLER.elementTarget(driver, '//a[@data-e2e-id="sidebar_report_and_analytis_submenu_jobs"]', By.XPATH).click()
 
         self.checkDownloadBtnAvailable(driver)
     
+
     def exportXlsxData(self):
         return self.EXECL_HANDLER.exportXlsxData(self.uiApp, condition=self.condition, findOrders=self.findOrders)

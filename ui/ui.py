@@ -1,6 +1,6 @@
 import customtkinter
 from tkinter import * 
-from handler.main import MERGE_HANDLER, EXECL_HANDLER,WEB_HANDLER, EMAIL_HANDLER, JASON_HANDLER
+from handler.main import MERGE_HANDLER, EXECL_HANDLER, WEB_HANDLER, EMAIL_HANDLER, JASON_HANDLER
 import os
 import time
 import re
@@ -44,7 +44,7 @@ class App(customtkinter.CTk):
         #### Setting.
         self.appTitle = 'ALL FOR ONE.'
         self.title('ALL FOR ONE.')
-   
+
         customtkinter_directory = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         self.iconbitmap(os.path.join(customtkinter_directory, "icon.ico"))
 
@@ -61,25 +61,25 @@ class App(customtkinter.CTk):
                     'value': ''
                 },
                 'findOrders': {
-                    'en': 'Find orders',
+                    'en': 'Orders',
                     'ch': '匹配訂單數',
                     'info': '',
                     'value': ''
                 },
                 'tag': {
-                    'en': 'Tag Name',
+                    'en': 'Tag',
                     'ch': '標籤名稱',
                     'info': '',
                     'value': ''
                 },
                 'subject': {
-                    'en': 'Mail subject',
+                    'en': 'Subject',
                     'ch': '郵件主旨',
                     'info': 'enter {name} display user name.eg. Hi {name}, how are you?',
                     'value': ''
                 },
                 'template': {
-                    'en': 'Template Name',
+                    'en': 'Template',
                     'ch': '套版名稱',
                     'info': '套版名稱',
                     'value': ''
@@ -91,17 +91,22 @@ class App(customtkinter.CTk):
                     'ch': 'Chrome 路徑',
                     'info': 'C:/Program Files/Google/Chrome/Application/chrome.exe',
                     'value': ''
+                },
+                'shopline':{
+                    'en':'account',
+                    'info': '',
+                    'value': ''
                 }
             },
             'mailgun': {
                 'sender': {
-                    'en': 'sender',
+                    'en': 'Sender',
                     'ch': '寄件人',
                     'info': 'Cooper Yen.',
                     'value': ''
                 },
                 'senderEmail': {
-                    'en': 'sender email',
+                    'en': 'Sender email',
                     'ch': '寄件人郵箱',
                     'info': 'cooperyen079@gmail.com',
                     'value': ''
@@ -119,19 +124,31 @@ class App(customtkinter.CTk):
                     'value': ''
                 },
             },
+            'validate':{
+                'apiKey': {
+                    'en': 'api key',
+                    'ch': 'api key',
+                    'info': 'key-7317a30a70357cf6309ab4fead46637d',
+                    'value': ''
+                },
+            },
             'title': {
                 'target': {
-                    'en': 'Send target',
+                    'en': 'Target',
                     'ch': '發送目標',
                 },
                 'setting': {
-                    'en': 'Setting options',
+                    'en': 'Options',
                     'ch': '基本設定',
                 },
                 'mailgun': {
-                    'en': 'Mailgun setting options',
+                    'en': 'Mailgun',
                     'ch': 'Mailgun 設定',
                 },
+                'validate':{
+                    'en': 'millionverifier',
+                    'ch': 'millionverifier 設定',
+                }
             },
         }
         # toplevel_window
@@ -198,9 +215,9 @@ class App(customtkinter.CTk):
 
         # create textbox
         self.textbox = customtkinter.CTkTextbox(
-            self, width=250, height=250, state='disabled')
+            self, width=500, height=250, state='disabled')
         self.textbox.grid(row=0, column=1, padx=(
-            20, 20), pady=(20, 20), sticky='nsew')
+            20, 20), pady=(20, 20), sticky='nsew', rowspan='5')
 
         # configure color tag.
         self.textbox.tag_config('Warning', foreground=warningColor)
@@ -211,6 +228,7 @@ class App(customtkinter.CTk):
         self.tabNameEmail = 'target'
         self.tabNameSetting = 'setting'
         self.tabNameMailgun = 'mailgun'
+        self.tabNameValidate = 'validate'
 
 
         self.meunButtonsContent()
@@ -263,18 +281,22 @@ class App(customtkinter.CTk):
     def settingOptionAreaContent(self):
         # create table view.
         self.tabview = customtkinter.CTkTabview(self, width=250, segmented_button_selected_color='white', text_color='black',segmented_button_selected_hover_color='white')
-        self.tabview.grid(row=1, column=1, padx=(
-            20, 20), pady=(0, 0), sticky='nsew')
+        self.tabview.grid(row=0, column=2, padx=(
+            0, 20), pady=(0, 0), sticky='nsew')
         
+       
+       
+       
         # add table table tag.
-        self.tabview.add(self.tabNameEmail)
-        self.tabview.add(self.tabNameSetting)
-        self.tabview.add(self.tabNameMailgun)
+        def addTagAndTableview(tableName):
+            self.tabview.add(tableName)
+            return self.tabview.tab(tableName)
 
-        # tag configure.
-        tableViewEmail = self.tabview.tab(self.tabNameEmail)
-        tableViewSetting = self.tabview.tab(self.tabNameSetting)
-        tableViewMailgun = self.tabview.tab(self.tabNameMailgun)
+        tableViewEmail = addTagAndTableview(self.tabNameEmail)
+        tableViewSetting = addTagAndTableview(self.tabNameSetting)
+        tableViewMailgun = addTagAndTableview(self.tabNameMailgun)
+        tableViewValidate = addTagAndTableview(self.tabNameValidate)
+
 
         # make sure will write file when first running.
         if (os.path.exists(self.JASON_HANDLER.saveJsonFileName) == False):
@@ -326,6 +348,7 @@ class App(customtkinter.CTk):
         tagsOption(tableViewEmail, self.tabNameEmail)
         tagsOption(tableViewSetting, self.tabNameSetting)
         tagsOption(tableViewMailgun, self.tabNameMailgun)
+        tagsOption(tableViewValidate, self.tabNameValidate)
 
 
     """
@@ -490,6 +513,11 @@ class App(customtkinter.CTk):
                 'bool': True if re.search(r'\W', self.datas[self.tabNameEmail]['tag']['value']) == None else False
             },
             {
+                'title': 'shopline',
+                'text': 'shopline.',
+                'bool': True if re.search(r'\W', self.datas[self.tabNameSetting]['shopline']['value']) == None else False
+            },
+            {
                 'title': 'findOrders',
                 'text': '"Find orders" is not type of integer, make sure only input numbers without any character and symbols that try again.',
                 'bool': findOrdersBool
@@ -511,8 +539,8 @@ class App(customtkinter.CTk):
             },
             {
                 'title': 'apiKey',
-                'text': f'Apikey should start with "key-", please check "{self.tabNameMailgun}" and try again.',
-                'bool': self.datas[self.tabNameMailgun]['apiKey']['value'].startswith('key-')
+                'text': f'api key should start with "key-", please check "{self.tabNameMailgun}" and try again.',
+                'bool': self.datas[self.tabNameMailgun]['apiKey']['value'].startswith('keys-')
             },
             {
                 'title': 'domain',
@@ -531,6 +559,8 @@ class App(customtkinter.CTk):
         if (checkSettingAllTrue(verifySettingList)):
             self.JASON_HANDLER.writeJsonFile(self.datas)
             return True
+        
+        
     def saveSettingOptionAsFileBTN(self):
         saveSetting = self.saveSettingOptionAsFileHandler()
         if (saveSetting):

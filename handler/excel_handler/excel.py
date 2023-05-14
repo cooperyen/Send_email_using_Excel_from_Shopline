@@ -115,7 +115,7 @@ class EXECL_HANDLER:
 
 
     """
-    xls save as xlsx.
+    use openpyxl module that only supports the type of '.xlsx', so do the xls transfer to xlsx.
     """
     def xlsToXlsx(self):
         file = self.newestFile(self.downLoadPath)

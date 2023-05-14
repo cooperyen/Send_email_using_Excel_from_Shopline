@@ -6,42 +6,47 @@ import json
 # DOMAIN = 'rafagotest.a2hosted.com'
 
 
+
 class EMAIL_HANDLER:
     def __init__(self, uiApp, loadJsonData, userData=None):
-        self.tagMailgun = loadJsonData['mailgun']
-        self.tagTarget = loadJsonData['target']
+        
+        # pass functions from parentNode. 
         self.uiApp = uiApp
 
+        self.tagMailgun = loadJsonData['mailgun']
+        self.tagTarget = loadJsonData['target']
+        self.tagValidate = loadJsonData['validate']
+
         self.FROM = f'{self.tagMailgun["sender"]["value"]} <{self.tagMailgun["senderEmail"]["value"]}>'
-        self.APIKEY = self.tagMailgun["apiKey"]["value"]
         self.DOMAIN = self.tagMailgun["domain"]["value"]
+        self.mailgunApiKey = self.tagMailgun["apiKey"]["value"]
+        self.validateApiKey = self.tagValidate["apiKey"]["value"]
         self.userData = userData
-      
+
+    """
+    validate email by millionverifier.
+    """
+    # @return Boolean.
     def riskValidate(self, email):
 
-        url = f"https://api.millionverifier.com/api/v3/?api=Ob3F6xDemZzkFV4QVppLjzOvs&email={email}&timeout=10"
+        url = f"https://api.millionverifier.com/api/v3/?{self.validateApiKey}&email={email}&timeout=10"
 
         response = requests.request("GET", url)
         
         quality = json.loads(response.content)['quality']
 
-        # check = requests.get(
-        #     "https://api.mailgun.net/v4/address/validate",
-        #     auth=("api", self.APIKEY),
-        #     params={"address": email})
-        # risk = json.loads(check.content)['risk']
-
-
+        """
+        3 levels of quality : Good, Bad, Risky.
+        """
+        # @return TRUE when quality is Good.
         if(quality != 'good'):
             self.uiApp.displayUiMessageHandler(f'{email} quality is {quality}, sending failed.', 'Warning')
             return False
         else :
             self.uiApp.displayUiMessageHandler(f'{email} quality is {quality}, start sending.')
 
-        
-
         return True if quality == 'good' else False
-        # return True
+
     
     def sendtemplateMessage(self, userData={'name', 'email', 'template', 'tag', 'subject'}):
           
@@ -52,7 +57,7 @@ class EMAIL_HANDLER:
 
                     post = requests.post(
                         f'https://api.mailgun.net/v3/{self.DOMAIN}/messages',
-                        auth=('api', self.APIKEY),
+                        auth=('api', self.mailgunApiKey),
                         data={'from': self.FROM,
                             'to': [userData['name'], f'<{userData["email"]}>'],
                             'subject':  userData["subject"],
