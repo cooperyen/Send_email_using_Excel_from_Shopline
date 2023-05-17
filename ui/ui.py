@@ -57,19 +57,13 @@ class App(customtkinter.CTk):
                 'condition': {
                     'en': 'Condition',
                     'ch': '匹配條件',
-                    'info': '',
+                    'info': 'condition with number of orders.',
                     'value': ''
                 },
                 'findOrders': {
                     'en': 'Orders',
                     'ch': '匹配訂單數',
-                    'info': '',
-                    'value': ''
-                },
-                'tag': {
-                    'en': 'Tag',
-                    'ch': '標籤名稱',
-                    'info': '',
+                    'info': 'number of matching orders for send.',
                     'value': ''
                 },
                 'subject': {
@@ -81,7 +75,13 @@ class App(customtkinter.CTk):
                 'template': {
                     'en': 'Template',
                     'ch': '套版名稱',
-                    'info': '套版名稱',
+                    'info': 'Template name\n*create templates before sending email.',
+                    'value': ''
+                },
+                'analytics': {
+                    'en': 'Analytics',
+                    'ch': '名稱',
+                    'info': 'Analytics name\n*will be displayed on the analysis page for easy finding',
                     'value': ''
                 },
             },
@@ -93,8 +93,8 @@ class App(customtkinter.CTk):
                     'value': ''
                 },
                 'shopline':{
-                    'en':'account',
-                    'info': '',
+                    'en':'Shopline account',
+                    'info': 'owner2000',
                     'value': ''
                 }
             },
@@ -108,33 +108,33 @@ class App(customtkinter.CTk):
                 'senderEmail': {
                     'en': 'Sender email',
                     'ch': '寄件人郵箱',
-                    'info': 'cooperyen079@gmail.com',
+                    'info': 'cooperyen079@gmail.com\n*show on email sender.',
                     'value': ''
                 },
                 'apiKey': {
-                    'en': 'api key',
-                    'ch': 'api key',
-                    'info': 'key-7317a30a70357cf6309ab4fead46637d',
+                    'en': 'API key',
+                    'ch': 'API key',
+                    'info': 'example : key-xxxxxxxxxxxxxxxxxxxxx',
                     'value': ''
                 },
                 'domain': {
-                    'en': 'domain',
-                    'ch': 'domain',
-                    'info': 'rafagotest.a2hosted.com',
+                    'en': 'Domain',
+                    'ch': 'Domain',
+                    'info': 'example : xxxxx.a2hosted.com',
                     'value': ''
                 },
             },
             'validate':{
-                'apiKey': {
-                    'en': 'api key',
-                    'ch': 'api key',
-                    'info': 'key-7317a30a70357cf6309ab4fead46637d',
+                'v-apiKey': {
+                    'en': 'API key',
+                    'ch': 'API key',
+                    'info': 'example : b3xxxxxxxxxxxxxxxxxvs',
                     'value': ''
                 },
             },
             'title': {
                 'target': {
-                    'en': 'Target',
+                    'en': 'Send email',
                     'ch': '發送目標',
                 },
                 'setting': {
@@ -146,8 +146,8 @@ class App(customtkinter.CTk):
                     'ch': 'Mailgun 設定',
                 },
                 'validate':{
-                    'en': 'millionverifier',
-                    'ch': 'millionverifier 設定',
+                    'en': 'Millionverifier',
+                    'ch': 'Millionverifier 設定',
                 }
             },
         }
@@ -323,7 +323,7 @@ class App(customtkinter.CTk):
 
                 # informations label
                 customtkinter.CTkLabel(
-                    tableView, text=f'{self.datas[tagName][labels]["info"]}', anchor='w', font=self.font).grid(row=infoRowNum, column=1, sticky='w')
+                    tableView, text=f'{self.datas[tagName][labels]["info"]}', anchor='w', font=self.font, justify='left').grid(row=infoRowNum, column=1, sticky='w')
 
                 globals()[f'__ui_labelsData_{labels}'] = customtkinter.CTkEntry(tableView, width=400, font=self.font)
 
@@ -337,9 +337,9 @@ class App(customtkinter.CTk):
                         )
                     
                     globals()[f'__ui_labelsData_{labels}'].set(loadJsonData[tagName][labels]['value'])
-                    globals()[f'__ui_labelsData_{labels}'].grid(row=1, column=1, pady=(10, 0), sticky='w')
+                    globals()[f'__ui_labelsData_{labels}'].grid(row=1, column=1, pady=(20, 0), sticky='w')
                 else:
-                    globals()[f'__ui_labelsData_{labels}'].grid(row=mainRowNum, column=1, pady=(10, 0))
+                    globals()[f'__ui_labelsData_{labels}'].grid(row=mainRowNum, column=1, pady=(20, 0), padx=(0, 20))
                     globals()[f'__ui_labelsData_{labels}'].insert(0, loadJsonData[tagName][labels]['value'])
 
                 infoRowNum = infoRowNum + 2
@@ -487,7 +487,7 @@ class App(customtkinter.CTk):
             return all(array)
 
         # append setting option value.
-        ary = [self.tabNameEmail, self.tabNameSetting, self.tabNameMailgun]
+        ary = [self.tabNameEmail, self.tabNameSetting, self.tabNameMailgun,self.tabNameValidate]
         for tab in ary:
             for labels in self.datas[tab]:
                 self.datas[tab][labels]['value'] = globals(
@@ -510,7 +510,7 @@ class App(customtkinter.CTk):
             {
                 'title': 'tag',
                 'text': 'Tag have symbols, please remove and try again.',
-                'bool': True if re.search(r'\W', self.datas[self.tabNameEmail]['tag']['value']) == None else False
+                'bool': True if re.search(r'\W', self.datas[self.tabNameEmail]['analytics']['value']) == None else False
             },
             {
                 'title': 'shopline',
@@ -540,7 +540,7 @@ class App(customtkinter.CTk):
             {
                 'title': 'apiKey',
                 'text': f'api key should start with "key-", please check "{self.tabNameMailgun}" and try again.',
-                'bool': self.datas[self.tabNameMailgun]['apiKey']['value'].startswith('keys-')
+                'bool': self.datas[self.tabNameMailgun]['apiKey']['value'].startswith('key-')
             },
             {
                 'title': 'domain',
@@ -629,7 +629,7 @@ class App(customtkinter.CTk):
                 'dowloadPath':loadJsonData[self.tabNameSetting]['chromePath']['value'],
                 'condition':loadJsonData[self.tabNameEmail]['condition']['value'],
                 'findOrders':loadJsonData[self.tabNameEmail]['findOrders']['value'],
-                'tag':loadJsonData[self.tabNameEmail]['tag']['value'],
+                'tag':loadJsonData[self.tabNameEmail]['analytics']['value'],
                 'template':loadJsonData[self.tabNameEmail]['template']['value']
             }
         )

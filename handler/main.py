@@ -105,49 +105,6 @@ class MERGE_HANDLER:
             # do check again.
             self.checkIsDownloaded(beforeLength)
 
-    
-    # def inputAndSaveTag_remarkController(self, text, driver):
-
-    #     remark = self.WEB_HANDLER.elementTarget(
-    #         driver, '//textarea[@placeholder="請輸入顧客備註"]', By.XPATH)
-
-    #     remark.click()
-    #     waitWithSec()
-    #     remark.send_keys(Keys.CONTROL, 'a')
-    #     waitWithSec()
-    #     remark.send_keys(text)
-    #     self.WEB_HANDLER.elementTarget(
-    #         driver, '//div[@ng-if="editAccess()"]/a[@ng-click="save()"]', By.XPATH).click()
-
-    # def inputAndSaveTag(self, driver):
-    #     waitWithSec(sec=2)
-
-    #     USERURL = 'https://admin.shoplineapp.com/admin/rafagogorafa154/users/'
-
-    #     waitWithSec(sec=3)
-    #     excelData = getExcelData(
-    #         self.uiApp, condition=self.condition, findOrders=self.findOrders)
-
-    #     for i in excelData:
-    #         driver.get(USERURL+i[0])
-    #         waitWithSec()
-
-    #         try:
-    #             text = self.WEB_HANDLER.elementTarget(
-    #                 driver, '//p[@ng-bind-html="user.memo"]', By.XPATH).text + f'.{self.tag}'
-
-    #             self.WEB_HANDLER.elementTarget(
-    #                 driver, '//a[@ng-click="edit()"]', By.XPATH).click()
-
-    #             self.inputAndSaveTag_remarkController(text)
-
-    #         except NoSuchElementException:
-    #             text = self.tag
-    #             self.inputAndSaveTag_remarkController(text)
-
-    #     waitWithSec(sec=2)
-    #     driver.close()
-
 
     def getAllCustomerData(self, driver):
 
@@ -157,7 +114,8 @@ class MERGE_HANDLER:
         waitWithSec()
 
         # get to shopline admin page.
-        driver.get(self.WEB_HANDLER.driverURL)
+        tid = JASON_HANDLER().loadJasonFile()
+        driver.get(f'https://admin.shoplineapp.com/admin/{tid["setting"]["shopline"]}')
 
         # export user data click steps.
         exportUserData = [

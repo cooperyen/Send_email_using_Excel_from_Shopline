@@ -20,7 +20,7 @@ class EMAIL_HANDLER:
         self.FROM = f'{self.tagMailgun["sender"]["value"]} <{self.tagMailgun["senderEmail"]["value"]}>'
         self.DOMAIN = self.tagMailgun["domain"]["value"]
         self.mailgunApiKey = self.tagMailgun["apiKey"]["value"]
-        self.validateApiKey = self.tagValidate["apiKey"]["value"]
+        self.validateApiKey = self.tagValidate["v-apiKey"]["value"]
         self.userData = userData
 
     """
@@ -29,7 +29,9 @@ class EMAIL_HANDLER:
     # @return Boolean.
     def riskValidate(self, email):
 
-        url = f"https://api.millionverifier.com/api/v3/?{self.validateApiKey}&email={email}&timeout=10"
+        url = f"https://api.millionverifier.com/api/v3/?api={self.validateApiKey}&email={email}&timeout=10"
+
+        
 
         response = requests.request("GET", url)
         
@@ -48,9 +50,9 @@ class EMAIL_HANDLER:
         return True if quality == 'good' else False
 
     
-    def sendtemplateMessage(self, userData={'name', 'email', 'template', 'tag', 'subject'}):
+    def sendtemplateMessage(self, userData={'name', 'email', 'template', 'analytics', 'subject'}):
           
-        if ('name' and 'template' and 'email' and 'tag' and 'subject' in self.tagTarget.keys()):
+        if ('name' and 'template' and 'email' and 'analytics' and 'subject' in self.tagTarget.keys()):
   
             # try:
                 if(self.riskValidate(userData["email"])):
@@ -63,10 +65,10 @@ class EMAIL_HANDLER:
                             'subject':  userData["subject"],
                             'template': userData['template'],
                             't:variables': json.dumps({'name': userData["name"]}),
-                            'o:tag': [userData["tag"]]
+                            'o:tag': [userData["analytics"]]
                             }
                     )
-                    
+
                     message = json.loads(post.content)['message']
                     self.uiApp.displayUiMessageHandler(f'{userData["email"]} : {message}')
 
@@ -96,7 +98,7 @@ class EMAIL_HANDLER:
                 userData = {'name': name,
                             'email': email,
                             'template': self.tagTarget['template']['value'],
-                            'tag': self.tagTarget['tag']['value'],
+                            'analytics': self.tagTarget['analytics']['value'],
                             'subject': self.tagTarget["subject"]["value"].replace('{name}', 'test name')
                             }
                 
@@ -124,7 +126,7 @@ class EMAIL_HANDLER:
                 userData = {'name': 'test name',
                             'email': i,
                             'template': self.tagTarget['template']['value'],
-                            'tag': self.tagTarget['tag']['value'],
+                            'analytics': self.tagTarget['analytics']['value'],
                             'subject': self.tagTarget["subject"]["value"].replace('{name}', 'test name')
                             }
                 sendState = self.sendtemplateMessage(userData)
