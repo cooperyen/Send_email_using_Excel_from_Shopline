@@ -4,31 +4,31 @@
       "en": "Condition",
       "ch": "\u5339\u914d\u689d\u4ef6",
       "info": "condition with number of orders.",
-      "value": ">="
+      "value": ""
     },
     "findOrders": {
       "en": "Orders",
       "ch": "\u5339\u914d\u8a02\u55ae\u6578",
       "info": "number of matching orders for send.",
-      "value": "0"
+      "value": ""
     },
     "subject": {
       "en": "Subject",
       "ch": "\u90f5\u4ef6\u4e3b\u65e8",
       "info": "enter {name} display user name.eg. Hi {name}, how are you?",
-      "value": "Hi {name}.  we have special offer for you"
+      "value": ""
     },
     "template": {
       "en": "Template",
       "ch": "\u5957\u7248\u540d\u7a31",
       "info": "Template name\n*create templates before sending email.",
-      "value": "0401_festival"
+      "value": ""
     },
     "analytics": {
       "en": "Analytics",
       "ch": "\u540d\u7a31",
       "info": "Analytics name\n*will be displayed on the analysis page for easy finding",
-      "value": "firtsend"
+      "value": ""
     }
   },
   "setting": {
@@ -36,12 +36,12 @@
       "en": "Chrome path",
       "ch": "Chrome \u8def\u5f91",
       "info": "C:/Program Files/Google/Chrome/Application/chrome.exe",
-      "value": "C:/Program Files/Google/Chrome/Application/chrome.exe"
+      "value": ""
     },
     "shopline": {
       "en": "Shopline account",
       "info": "owner2000",
-      "value": "rafagogorafa154"
+      "value": ""
     }
   },
   "mailgun": {
@@ -49,25 +49,25 @@
       "en": "Sender",
       "ch": "\u5bc4\u4ef6\u4eba",
       "info": "Cooper Yen.",
-      "value": "RafaGo Rafa\u727d\u8457\u5409\u5a03\u5a03"
+      "value": ""
     },
     "senderEmail": {
       "en": "Sender email",
       "ch": "\u5bc4\u4ef6\u4eba\u90f5\u7bb1",
       "info": "cooperyen079@gmail.com\n*show on email sender.",
-      "value": "service.rafago@gmail.com"
+      "value": ""
     },
     "apiKey": {
       "en": "API key",
       "ch": "API key",
       "info": "example : key-xxxxxxxxxxxxxxxxxxxxx",
-      "value": "key-7317a30a70357cf6309ab4fead46637d"
+      "value": ""
     },
     "domain": {
       "en": "Domain",
       "ch": "Domain",
       "info": "example : xxxxx.a2hosted.com",
-      "value": "rafagotest.a2hosted.com"
+      "value": ""
     }
   },
   "validate": {
@@ -75,7 +75,7 @@
       "en": "API key",
       "ch": "API key",
       "info": "example : b3xxxxxxxxxxxxxxxxxvs",
-      "value": "Ob3F6xDemZzkFV4QVppLjzOvs"
+      "value": ""
     }
   },
   "title": {
