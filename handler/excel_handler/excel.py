@@ -60,7 +60,6 @@ class EXECL_HANDLER:
                             case '<=':
                                 if (orders <= findOrders and orders != 0):
                                     arrays.append(a)
-
         return arrays
 
     def matchSpecifiedTitle(self, tables, arrays):
@@ -144,5 +143,35 @@ class EXECL_HANDLER:
         os.remove(removeFilePath)
 
 
+    def saveMatchUserAsXlsx(self, userData=None, condition='=', findOrders=1):
+    
+        excelData = userData
+        num = 0
+        
+        if (excelData != None):
+            state = True
+            for i in excelData:
+                name = i[1]
+                email = i[3]
+                userData = {'name': name,
+                            'email': email,
+                            'template': self.tagTarget['template']['value'],
+                            'analytics': self.tagTarget['analytics']['value'],
+                            'subject': self.tagTarget["subject"]["value"].replace('{name}', 'test name')
+                            }
+                
+                sendState = self.sendtemplateMessage(userData)
+                num = num + 1
 
+
+                if (sendState == False):
+                    num = num - 1
+                    i.append('Failed')
+                    # state = False
+                    # break
+
+
+
+            
+    
 

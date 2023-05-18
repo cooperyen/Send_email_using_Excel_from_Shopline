@@ -42,8 +42,8 @@ class App(customtkinter.CTk):
 
 
         #### Setting.
-        self.appTitle = 'ALL FOR ONE.'
-        self.title('ALL FOR ONE.')
+        self.appTitle = 'ONE FOR ALL'
+        self.title('ONE FOR ALL')
 
         customtkinter_directory = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         self.iconbitmap(os.path.join(customtkinter_directory, "icon.ico"))
@@ -230,6 +230,8 @@ class App(customtkinter.CTk):
         self.tabNameMailgun = 'mailgun'
         self.tabNameValidate = 'validate'
 
+        self.sendTestEmailBTN = ''
+
 
         self.meunButtonsContent()
         self.settingOptionAreaContent()
@@ -241,23 +243,23 @@ class App(customtkinter.CTk):
         configureBTNS = [
             {
                 'command': self.saveSettingOptionAsFileBTN,
-                'text': 'save setting options'
+                'text': 'Save setting'
             },
             {
                 'command': self.downloadUserDataBTN,
-                'text': 'download user data'
+                'text': 'Download user data\n(web)'
             },
             {
                 'command': self.sendEmailBTN,
-                'text': 'send email'
+                'text': 'Send mail'
             },
             {
                 'command': self.saveToExcelBTN,
-                'text': 'save user data to excel'
+                'text': 'Save matching\nuser data to excel'
             },
             {
                 'command': self.executeAllProcessBTN,
-                'text': 'Do all of the above'
+                'text': 'Execute all'
             },
         ]
 
@@ -270,9 +272,9 @@ class App(customtkinter.CTk):
             locals()[i].grid(row=i+1, column=0, padx=20, pady=10)
 
         # alone configure
-        sendTestEmailBTN = customtkinter.CTkButton(self.sidebarFrame, command=self.sendTestEmailBTN, fg_color='transparent', hover_color=mainHoverColor, border_color=mainHoverColor, border_width=2)
-        sendTestEmailBTN.configure(text='Send test email', height=50)
-        sendTestEmailBTN.grid(row=7, column=0, padx=20, pady=10)
+        self.sendTestEmailBTN = customtkinter.CTkButton(self.sidebarFrame, command=self.sendTestEmailBTNHandler, fg_color='transparent', hover_color=secBgColor, border_color=mainHoverColor, border_width=2)
+        self.sendTestEmailBTN.configure(text='Send test email', height=50)
+        self.sendTestEmailBTN.grid(row=7, column=0, padx=20, pady=10)
 
 
     """
@@ -282,7 +284,7 @@ class App(customtkinter.CTk):
         # create table view.
         self.tabview = customtkinter.CTkTabview(self, width=250, segmented_button_selected_color='white', text_color='black',segmented_button_selected_hover_color='white')
         self.tabview.grid(row=0, column=2, padx=(
-            0, 20), pady=(0, 0), sticky='nsew')
+            0, 20), pady=(30, 0), sticky='nsew')
         
        
        
@@ -319,11 +321,18 @@ class App(customtkinter.CTk):
                 # items label
                 customtkinter.CTkLabel(
                     tableView, text=f'{self.datas[tagName][labels]["en"]}', anchor='w', font=self.font).grid(
-                    row=1 if mainRowNum == 1 else mainRowNum, column=0, padx=20, pady=(0, 0), sticky='w')
+                    row=1 if mainRowNum == 1 else mainRowNum, column=0, padx=20, pady=(20, 0), sticky='w')
+                
+                if(labels == 'chromePath'):
+                    customtkinter.CTkButton(tableViewSetting, fg_color=mainBgColor,hover_color=secBgColor, text='User Login', anchor='s', font=self.font, command=self.chromeLoginUser).grid(row=1, column=1, padx=0, pady=(20, 0), sticky='w')
+
+                    infoRowNum = infoRowNum + 2
+                    mainRowNum = mainRowNum + 2
 
                 # informations label
                 customtkinter.CTkLabel(
                     tableView, text=f'{self.datas[tagName][labels]["info"]}', anchor='w', font=self.font, justify='left').grid(row=infoRowNum, column=1, sticky='w')
+                
 
                 globals()[f'__ui_labelsData_{labels}'] = customtkinter.CTkEntry(tableView, width=400, font=self.font)
 
@@ -345,10 +354,15 @@ class App(customtkinter.CTk):
                 infoRowNum = infoRowNum + 2
                 mainRowNum = mainRowNum + 2
 
+
+         
+
         tagsOption(tableViewEmail, self.tabNameEmail)
         tagsOption(tableViewSetting, self.tabNameSetting)
         tagsOption(tableViewMailgun, self.tabNameMailgun)
         tagsOption(tableViewValidate, self.tabNameValidate)
+
+
 
 
     """
@@ -356,6 +370,10 @@ class App(customtkinter.CTk):
     """
     def switchAppearanceModeHandler(self, newAppearanceMode: str):
         customtkinter.set_appearance_mode(newAppearanceMode)
+
+        print(newAppearanceMode)
+
+        self.sendTestEmailBTN.configure(fg_color='transparent') if newAppearanceMode == 'Dark' else self.sendTestEmailBTN.configure(fg_color=mainBgColor)
 
 
     """
@@ -393,7 +411,7 @@ class App(customtkinter.CTk):
             # opean chrome
             self.downloadUserDataHandler()
 
-            self.saveAsExcelHanlder() if self.sendEmailHandler() else None
+            self.saveAsExcelHanlder(self.emailsData) if self.sendEmailHandler() else None
 
     
     """
@@ -427,9 +445,8 @@ class App(customtkinter.CTk):
     def sendEmailBTN(self):
         sendEmail = self.sendEmailHandler()
 
-
         if (sendEmail):
-            self.saveToExcelBTN()
+            self.saveAsExcelHanlder(self.emailsData)
 
 
     """
@@ -455,7 +472,7 @@ class App(customtkinter.CTk):
             return sendingEmails['num']
         else:
             return False
-    def sendTestEmailBTN(self):
+    def sendTestEmailBTNHandler(self):
         if self.toplevel_window is None or not self.toplevel_window.winfo_exists():
             # create window if its None or destroyed
             self.toplevel_window = ToplevelWindow(self)  
@@ -600,6 +617,7 @@ class App(customtkinter.CTk):
             self.displayUiMessageHandler('Done : Get all customer data processing.')
 
             driver.close()
+
     def downloadUserDataBTN(self):
         self.downloadUserDataHandler()
 
@@ -607,22 +625,26 @@ class App(customtkinter.CTk):
     """
     save data as local excel handler.
     """
-    def saveAsExcelHanlder(self):
+    def saveAsExcelHanlder(self, userData):
 
         msg = 'saving user\'s data to excel.'
         self.displayUiMessageHandler(f'Starting : {msg}')
 
         mergeHandler = self.mergeHandler()
-        self.EXECL_HANDLER.createNewExcelWithData(self, self.emailsData, types=mergeHandler.tag)
+        self.EXECL_HANDLER.createNewExcelWithData(self, userData, types=mergeHandler.tag)
 
         self.displayUiMessageHandler(f'Done : {msg}')
+
     def saveToExcelBTN(self):
-        self.saveAsExcelHanlder()
+        userData = self.mergeHandler().exportXlsxData()
+        self.saveAsExcelHanlder(userData)
+
 
 
     # @return class MERGE_HANDLER.
     def mergeHandler(self):
         loadJsonData = self.JASON_HANDLER.loadJasonFile()
+  
         result = MERGE_HANDLER(
             {
                 'uiApp':self,
@@ -634,7 +656,16 @@ class App(customtkinter.CTk):
             }
         )
 
+        
+
         return result
+
+
+
+    def chromeLoginUser(self):
+        loadJsonData = self.JASON_HANDLER.loadJasonFile()
+        self.WEB_HANDLER.createChrome(loadJsonData[self.tabNameSetting]['chromePath']['value'])
+
 
 
 """

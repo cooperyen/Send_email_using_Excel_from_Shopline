@@ -11,7 +11,6 @@ class WEB_HANDLER:
         self.port = '9527'
         self.ip = f'{self.proxy}:{self.port}'
         self.service = r'./chromedriver.exe'
-        self.driverURL = 'https://admin.shoplineapp.com/admin/rafagogorafa154/'
 
     """
     1. create chrome from chromedriver is debugging that will not coming with any login user seeting. 
@@ -19,8 +18,6 @@ class WEB_HANDLER:
     """
 
     def createChrome(self, chromePath):
-        # chromePath = 'C:/Users/coope/AppData/Local/Google/Chrome/Application/chrome.exe'
-        # chromePath = 'C:/Program Files/Google/Chrome/Application/chrome.exe'
         chromeUserLoginTemporaryData = 'C:/selenium/AutomationProfile'
         cmdCommand = f'"{chromePath}" --remote-debugging-port={self.port} --user-data-dir="{chromeUserLoginTemporaryData}"'
         os.popen(cmdCommand)

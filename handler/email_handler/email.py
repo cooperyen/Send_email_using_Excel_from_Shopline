@@ -50,40 +50,35 @@ class EMAIL_HANDLER:
         return True if quality == 'good' else False
 
     
-    def sendtemplateMessage(self, userData={'name', 'email', 'template', 'analytics', 'subject'}):
+    def sendtemplateMessage(self, userData={'name', 'email', 'template', 'analytics', 'subject'}, testMode = False):
+        
+        def sendHelper():
+            post = requests.post(
+                f'https://api.mailgun.net/v3/{self.DOMAIN}/messages',
+                auth=('api', self.mailgunApiKey),
+                data={'from': self.FROM,
+                    'to': [userData['name'], f'<{userData["email"]}>'],
+                    'subject':  userData["subject"],
+                    'template': userData['template'],
+                    't:variables': json.dumps({'name': userData["name"]}),
+                    'o:tag': [userData["analytics"]]
+                    }
+            )
+
+            message = json.loads(post.content)['message']
+            self.uiApp.displayUiMessageHandler(f'{userData["email"]} : {message}')
+        
           
         if ('name' and 'template' and 'email' and 'analytics' and 'subject' in self.tagTarget.keys()):
-  
-            # try:
-                if(self.riskValidate(userData["email"])):
 
-                    post = requests.post(
-                        f'https://api.mailgun.net/v3/{self.DOMAIN}/messages',
-                        auth=('api', self.mailgunApiKey),
-                        data={'from': self.FROM,
-                            'to': [userData['name'], f'<{userData["email"]}>'],
-                            'subject':  userData["subject"],
-                            'template': userData['template'],
-                            't:variables': json.dumps({'name': userData["name"]}),
-                            'o:tag': [userData["analytics"]]
-                            }
-                    )
+            if(testMode):
+                sendHelper()
+            else:
+                sendHelper() if self.riskValidate(userData["email"]) else False
+                
+        else:
+            return False
 
-                    message = json.loads(post.content)['message']
-                    self.uiApp.displayUiMessageHandler(f'{userData["email"]} : {message}')
-
-                else:
-                    return False
-
-
-
-
-            #     else:
-            #         self.uiApp.displayUiMessageHandler(f'{userData["email"]} : False')
-            #         return False
-            # except:
-            #     self.uiApp.displayUiMessageHandler('Mailgun setup error, please check if the api key and domain are correct', 'Warning')
-            #     return False
 
     def sendingEmails(self):
 
@@ -129,7 +124,7 @@ class EMAIL_HANDLER:
                             'analytics': self.tagTarget['analytics']['value'],
                             'subject': self.tagTarget["subject"]["value"].replace('{name}', 'test name')
                             }
-                sendState = self.sendtemplateMessage(userData)
+                sendState = self.sendtemplateMessage(userData, testMode = True)
                 num = num + 1
                 if (sendState == False):
                     num = num - 1

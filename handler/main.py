@@ -6,7 +6,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from handler.excel_handler.excel import EXECL_HANDLER
 from handler.web_handler.web import WEB_HANDLER
-from handler.email_handler.emil import EMAIL_HANDLER
+from handler.email_handler.email import EMAIL_HANDLER
 from handler.functions_handler.json_handler import JASON_HANDLER
 
 
