@@ -94,7 +94,7 @@ class EMAIL_HANDLER:
                             'email': email,
                             'template': self.tagTarget['template']['value'],
                             'analytics': self.tagTarget['analytics']['value'],
-                            'subject': self.tagTarget["subject"]["value"].replace('{name}', 'test name')
+                            'subject': self.tagTarget["subject"]["value"].replace('{name}', name)
                             }
                 
                 sendState = self.sendtemplateMessage(userData)
