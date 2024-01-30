@@ -1,5 +1,5 @@
 import customtkinter
-from tkinter import * 
+from tkinter import *
 from handler.main import MERGE_HANDLER, EXECL_HANDLER, WEB_HANDLER, EMAIL_HANDLER, JASON_HANDLER
 import os
 import time
@@ -23,6 +23,8 @@ customtkinter.set_appearance_mode('Dark')
 """
 Main window view.
 """
+
+
 class App(customtkinter.CTk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -30,28 +32,27 @@ class App(customtkinter.CTk):
         self.JASON_HANDLER = JASON_HANDLER()
         self.WEB_HANDLER = WEB_HANDLER()
 
-        #### Configure window.
+        # Configure window.
         # Width of the screen
-        self.displayWidth = self.winfo_screenwidth()  
+        self.displayWidth = self.winfo_screenwidth()
         # Height of the screen
-        self.displayHeight = self.winfo_screenheight() 
+        self.displayHeight = self.winfo_screenheight()
         self.width = 1400
         self.height = 800
 
         self.emailsData = ''
 
-
-        #### Setting.
+        # Setting.
         self.appTitle = 'ONE FOR ALL'
         self.title('ONE FOR ALL')
 
-        customtkinter_directory = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        customtkinter_directory = os.path.dirname(
+            os.path.dirname(os.path.abspath(__file__)))
         self.iconbitmap(os.path.join(customtkinter_directory, "icon.ico"))
-
 
         self.minsize(self.width, self.height)
         self.font = customtkinter.CTkFont(family='Microsoft JhengHei')
-        # content datas. 
+        # content datas.
         self.datas = {
             'target': {
                 'condition': {
@@ -84,6 +85,12 @@ class App(customtkinter.CTk):
                     'info': 'Analytics name\n*will be displayed on the analysis page for easy finding',
                     'value': ''
                 },
+                'deliverytime': {
+                    'en': 'Delievery Time',
+                    'ch': '送達時間',
+                    'info': 'Keep empty be immediately send.',
+                    'value': ''
+                },
             },
             'setting': {
                 'chromePath': {
@@ -92,8 +99,8 @@ class App(customtkinter.CTk):
                     'info': 'C:/Program Files/Google/Chrome/Application/chrome.exe',
                     'value': ''
                 },
-                'shopline':{
-                    'en':'Shopline account',
+                'shopline': {
+                    'en': 'Shopline account',
                     'info': 'owner2000',
                     'value': ''
                 }
@@ -124,7 +131,7 @@ class App(customtkinter.CTk):
                     'value': ''
                 },
             },
-            'validate':{
+            'validate': {
                 'v-apiKey': {
                     'en': 'API key',
                     'ch': 'API key',
@@ -145,7 +152,7 @@ class App(customtkinter.CTk):
                     'en': 'Mailgun',
                     'ch': 'Mailgun 設定',
                 },
-                'validate':{
+                'validate': {
                     'en': 'Millionverifier',
                     'ch': 'Millionverifier 設定',
                 }
@@ -154,24 +161,22 @@ class App(customtkinter.CTk):
         # toplevel_window
         self.toplevel_window = None
 
-        #### Coordinate window.
+        # Coordinate window.
         self.x = (self.displayWidth/2) - (self.width/2)
         self.y = (self.displayHeight/2) - (self.height/2)
-        self.geometry('%dx%d+%d+%d' % (self.width, self.height, self.x, self.y))
+        self.geometry('%dx%d+%d+%d' %
+                      (self.width, self.height, self.x, self.y))
 
-
-        #### configure grid layout (4x4).
+        # configure grid layout (4x4).
         self.grid_columnconfigure(1, weight=1)
         self.grid_columnconfigure((2, 3), weight=0)
         self.grid_rowconfigure((0, 1, 2), weight=1)
 
-
-        #### create sidebar frame with widgets
+        # create sidebar frame with widgets
         # Frame
         self.sidebarFrame = SidebarFrame(self)
         self.sidebarFrame.grid(row=0, column=0, rowspan=5, sticky='nsew')
         self.sidebarFrame.grid_rowconfigure(6, weight=1)
-
 
         # Logo.
         self.logoLabel = customtkinter.CTkLabel(
@@ -186,15 +191,15 @@ class App(customtkinter.CTk):
         # Appearance mode options menu
         self.AppearanceModeOptionsMenu = customtkinter.CTkOptionMenu(
             self.sidebarFrame, values=[
-            'Dark', 'System', 'Light'],
+                'Dark', 'System', 'Light'],
             command=self.switchAppearanceModeHandler,
             fg_color=secBgColor,
             button_color=optionBTNColor,
             button_hover_color=optionBTNColor
-            )
+        )
         self.AppearanceModeOptionsMenu.grid(
             row=9, column=0, padx=20, pady=(10, 10))
-        
+
         # scaling mode
         self.scalingMode = customtkinter.CTkLabel(
             self.sidebarFrame, text='UI Scaling:', anchor='w')
@@ -203,15 +208,16 @@ class App(customtkinter.CTk):
 
         # scaling mode options menu
         self.scalingModeOptionsMenu = customtkinter.CTkOptionMenu(
-            self.sidebarFrame, 
-            values=['100%', '110%', '120%'], 
+            self.sidebarFrame,
+            values=['100%', '110%', '120%'],
             command=self.switchScalingModeHandler,
             fg_color=secBgColor,
             button_color=optionBTNColor,
             button_hover_color=optionBTNColor
-            )
-        
-        self.scalingModeOptionsMenu.grid(row=11, column=0, padx=20, pady=(10, 20))
+        )
+
+        self.scalingModeOptionsMenu.grid(
+            row=11, column=0, padx=20, pady=(10, 20))
 
         # create textbox
         self.textbox = customtkinter.CTkTextbox(
@@ -232,13 +238,13 @@ class App(customtkinter.CTk):
 
         self.sendTestEmailBTN = ''
 
-
         self.meunButtonsContent()
         self.settingOptionAreaContent()
 
     """
     export buttons layout.
     """
+
     def meunButtonsContent(self):
         configureBTNS = [
             {
@@ -272,24 +278,24 @@ class App(customtkinter.CTk):
             locals()[i].grid(row=i+1, column=0, padx=20, pady=10)
 
         # alone configure
-        self.sendTestEmailBTN = customtkinter.CTkButton(self.sidebarFrame, command=self.sendTestEmailBTNHandler, fg_color='transparent', hover_color=secBgColor, border_color=mainHoverColor, border_width=2)
+        self.sendTestEmailBTN = customtkinter.CTkButton(self.sidebarFrame, command=self.sendTestEmailBTNHandler,
+                                                        fg_color='transparent', hover_color=secBgColor, border_color=mainHoverColor, border_width=2)
         self.sendTestEmailBTN.configure(text='Send test email', height=50)
         self.sendTestEmailBTN.grid(row=7, column=0, padx=20, pady=10)
-
 
     """
     export setting table layout.
     """
+
     def settingOptionAreaContent(self):
         # create table view.
-        self.tabview = customtkinter.CTkTabview(self, width=250, segmented_button_selected_color='white', text_color='black',segmented_button_selected_hover_color='white')
+        self.tabview = customtkinter.CTkTabview(
+            self, width=250, segmented_button_selected_color='white', text_color='black', segmented_button_selected_hover_color='white')
         self.tabview.grid(row=0, column=2, padx=(
             0, 20), pady=(30, 0), sticky='nsew')
-        
-       
-       
-       
+
         # add table table tag.
+
         def addTagAndTableview(tableName):
             self.tabview.add(tableName)
             return self.tabview.tab(tableName)
@@ -299,32 +305,31 @@ class App(customtkinter.CTk):
         tableViewMailgun = addTagAndTableview(self.tabNameMailgun)
         tableViewValidate = addTagAndTableview(self.tabNameValidate)
 
-
         # make sure will write file when first running.
         if (os.path.exists(self.JASON_HANDLER.saveJsonFileName) == False):
             self.JASON_HANDLER.writeJsonFile(self.datas)
 
         loadJsonData = self.JASON_HANDLER.loadJasonFile()
-    
+
         # output tags layout.
         def tagsOption(tableView, tagName):
             mainRowNum = 1
             infoRowNum = 2
-            
+
             # tag title.
             customtkinter.CTkLabel(
                 tableView, text=self.datas['title'][tagName]['en'], font=customtkinter.CTkFont(size=16, weight='bold')).grid(
                     row=0, column=0, padx=20, pady=(20, 5), sticky='w')
-
 
             for labels in self.datas[tagName]:
                 # items label
                 customtkinter.CTkLabel(
                     tableView, text=f'{self.datas[tagName][labels]["en"]}', anchor='w', font=self.font).grid(
                     row=1 if mainRowNum == 1 else mainRowNum, column=0, padx=20, pady=(20, 0), sticky='w')
-                
-                if(labels == 'chromePath'):
-                    customtkinter.CTkButton(tableViewSetting, fg_color=mainBgColor,hover_color=secBgColor, text='User Login', anchor='s', font=self.font, command=self.chromeLoginUser).grid(row=1, column=1, padx=0, pady=(20, 0), sticky='w')
+
+                if (labels == 'chromePath'):
+                    customtkinter.CTkButton(tableViewSetting, fg_color=mainBgColor, hover_color=secBgColor, text='User Login', anchor='s',
+                                            font=self.font, command=self.chromeLoginUser).grid(row=1, column=1, padx=0, pady=(20, 0), sticky='w')
 
                     infoRowNum = infoRowNum + 2
                     mainRowNum = mainRowNum + 2
@@ -332,9 +337,9 @@ class App(customtkinter.CTk):
                 # informations label
                 customtkinter.CTkLabel(
                     tableView, text=f'{self.datas[tagName][labels]["info"]}', anchor='w', font=self.font, justify='left').grid(row=infoRowNum, column=1, sticky='w')
-                
 
-                globals()[f'__ui_labelsData_{labels}'] = customtkinter.CTkEntry(tableView, width=400, font=self.font)
+                globals()[f'__ui_labelsData_{labels}'] = customtkinter.CTkEntry(
+                    tableView, width=400, font=self.font)
 
                 if (labels == 'condition'):
                     globals()[f'__ui_labelsData_{labels}'] = customtkinter.CTkOptionMenu(
@@ -343,50 +348,50 @@ class App(customtkinter.CTk):
                         fg_color=secBgColor,
                         button_color=optionBTNColor,
                         button_hover_color=optionBTNColor
-                        )
-                    
-                    globals()[f'__ui_labelsData_{labels}'].set(loadJsonData[tagName][labels]['value'])
-                    globals()[f'__ui_labelsData_{labels}'].grid(row=1, column=1, pady=(20, 0), sticky='w')
+                    )
+
+                    globals()[f'__ui_labelsData_{labels}'].set(
+                        loadJsonData[tagName][labels]['value'])
+                    globals()[f'__ui_labelsData_{labels}'].grid(
+                        row=1, column=1, pady=(20, 0), sticky='w')
                 else:
-                    globals()[f'__ui_labelsData_{labels}'].grid(row=mainRowNum, column=1, pady=(20, 0), padx=(0, 20))
-                    globals()[f'__ui_labelsData_{labels}'].insert(0, loadJsonData[tagName][labels]['value'])
+                    globals()[f'__ui_labelsData_{labels}'].grid(
+                        row=mainRowNum, column=1, pady=(20, 0), padx=(0, 20))
+                    globals()[f'__ui_labelsData_{labels}'].insert(
+                        0, loadJsonData[tagName][labels]['value'])
 
                 infoRowNum = infoRowNum + 2
                 mainRowNum = mainRowNum + 2
-
-
-         
 
         tagsOption(tableViewEmail, self.tabNameEmail)
         tagsOption(tableViewSetting, self.tabNameSetting)
         tagsOption(tableViewMailgun, self.tabNameMailgun)
         tagsOption(tableViewValidate, self.tabNameValidate)
 
-
-
-
     """
     Switch appearance mode.
     """
+
     def switchAppearanceModeHandler(self, newAppearanceMode: str):
         customtkinter.set_appearance_mode(newAppearanceMode)
 
         print(newAppearanceMode)
 
-        self.sendTestEmailBTN.configure(fg_color='transparent') if newAppearanceMode == 'Dark' else self.sendTestEmailBTN.configure(fg_color=mainBgColor)
-
+        self.sendTestEmailBTN.configure(
+            fg_color='transparent') if newAppearanceMode == 'Dark' else self.sendTestEmailBTN.configure(fg_color=mainBgColor)
 
     """
     Switch scaling mode.
     """
+
     def switchScalingModeHandler(self, newScaling: str):
         new_scaling_float = int(newScaling.replace('%', '')) / 100
         customtkinter.set_widget_scaling(new_scaling_float)
 
-
     """
     Display message in "self.textbox" container.
     """
+
     def displayUiMessageHandler(self, value, tag=''):
         text = tag + ' : ' if tag != '' else ''
         self.textbox.configure(state='normal')
@@ -397,10 +402,10 @@ class App(customtkinter.CTk):
         self.textbox.update()
         print(value)
 
-
     """
     Execute all process btn.
     """
+
     def executeAllProcessBTN(self):
         saveSettingOptionAsFile = self.saveSettingOptionAsFileHandler()
 
@@ -411,13 +416,14 @@ class App(customtkinter.CTk):
             # opean chrome
             self.downloadUserDataHandler()
 
-            self.saveAsExcelHanlder(self.emailsData) if self.sendEmailHandler() else None
+            self.saveAsExcelHanlder(
+                self.emailsData) if self.sendEmailHandler() else None
 
-    
     """
     send email handler.
     """
     # @return Value or False.
+
     def sendEmailHandler(self):
         saveSettingOptionAsFile = self.saveSettingOptionAsFileHandler()
 
@@ -433,26 +439,27 @@ class App(customtkinter.CTk):
             emailHandler = EMAIL_HANDLER(self, loadJsonData, exportXlsxData)
             sendingEmails = emailHandler.sendingEmails()
 
-            if(exportXlsxData and sendingEmails['state']):
-                self.displayUiMessageHandler(f'A total of {sendingEmails["num"]} emails were sent')
+            if (exportXlsxData and sendingEmails['state']):
+                self.displayUiMessageHandler(
+                    f'A total of {sendingEmails["num"]} emails were sent')
                 self.displayUiMessageHandler(f'Done : {msg}')
-
 
             self.emailsData = sendingEmails['userData']
             return sendingEmails['state']
         else:
             return False
+
     def sendEmailBTN(self):
         sendEmail = self.sendEmailHandler()
 
         if (sendEmail):
             self.saveAsExcelHanlder(self.emailsData)
 
-
     """
     send a test mail.
     """
     # @return Value or False.
+
     def sendTestEmailHandler(self, email):
         saveSettingOptionAsFile = self.saveSettingOptionAsFileHandler()
 
@@ -465,29 +472,31 @@ class App(customtkinter.CTk):
             emailHandler = EMAIL_HANDLER(self, loadJsonData)
             sendingEmails = emailHandler.directSendEmails(email)
 
-            if(sendingEmails['state']):
+            if (sendingEmails['state']):
                 self.displayUiMessageHandler(f'Done : {msg}')
-                self.displayUiMessageHandler(f'A total of {sendingEmails["num"]} emails were sent') 
+                self.displayUiMessageHandler(
+                    f'A total of {sendingEmails["num"]} emails were sent')
 
             return sendingEmails['num']
         else:
             return False
+
     def sendTestEmailBTNHandler(self):
         if self.toplevel_window is None or not self.toplevel_window.winfo_exists():
             # create window if its None or destroyed
-            self.toplevel_window = ToplevelWindow(self)  
-            self.toplevel_window.grab_set() 
+            self.toplevel_window = ToplevelWindow(self)
+            self.toplevel_window.grab_set()
         else:
             # if window exists focus it.
-            self.toplevel_window.focus()  
+            self.toplevel_window.focus()
 
         self.toplevel_window.getParentModule(self)
-        
 
     """
     save GUI options as a file.
     """
     # @return boolen.
+
     def saveSettingOptionAsFileHandler(self):
 
         def checkSettingAllTrue(ary):
@@ -499,12 +508,15 @@ class App(customtkinter.CTk):
         def checkSettingOptionNotEmpty():
             array = []
             for labels in self.datas[self.tabNameEmail]:
-                array.append(self.datas[self.tabNameEmail][labels]['value'])
+                if labels != 'deliverytime':
+                    array.append(
+                        self.datas[self.tabNameEmail][labels]['value'])
 
             return all(array)
 
         # append setting option value.
-        ary = [self.tabNameEmail, self.tabNameSetting, self.tabNameMailgun,self.tabNameValidate]
+        ary = [self.tabNameEmail, self.tabNameSetting,
+               self.tabNameMailgun, self.tabNameValidate]
         for tab in ary:
             for labels in self.datas[tab]:
                 self.datas[tab][labels]['value'] = globals(
@@ -569,24 +581,24 @@ class App(customtkinter.CTk):
         # Verifies that each option Boolean and displays a Warning message if FALSE.
         for i in range(len(verifySettingList)):
             if (verifySettingList[i]['bool'] == False):
-                self.displayUiMessageHandler(verifySettingList[i]['text'], 'Warning')
+                self.displayUiMessageHandler(
+                    verifySettingList[i]['text'], 'Warning')
                 break
 
         # if all options are True that save data to json.
         if (checkSettingAllTrue(verifySettingList)):
             self.JASON_HANDLER.writeJsonFile(self.datas)
             return True
-        
-        
+
     def saveSettingOptionAsFileBTN(self):
         saveSetting = self.saveSettingOptionAsFileHandler()
         if (saveSetting):
             self.displayUiMessageHandler('Setting options saved.')
-            
 
     """
     download users data from "SHOPLINE" website.
     """
+
     def downloadUserDataHandler(self):
 
         saveSettingOptionAsFile = self.saveSettingOptionAsFileHandler()
@@ -614,24 +626,26 @@ class App(customtkinter.CTk):
             self.displayUiMessageHandler(
                 'Starting : Get all customer data processing.')
             mergeHandler.getAllCustomerData(driver)
-            self.displayUiMessageHandler('Done : Get all customer data processing.')
+            self.displayUiMessageHandler(
+                'Done : Get all customer data processing.')
 
             driver.close()
 
     def downloadUserDataBTN(self):
         self.downloadUserDataHandler()
 
-
     """
     save data as local excel handler.
     """
+
     def saveAsExcelHanlder(self, userData):
 
         msg = 'saving user\'s data to excel.'
         self.displayUiMessageHandler(f'Starting : {msg}')
 
         mergeHandler = self.mergeHandler()
-        self.EXECL_HANDLER.createNewExcelWithData(self, userData, types=mergeHandler.tag)
+        self.EXECL_HANDLER.createNewExcelWithData(
+            self, userData, types=mergeHandler.tag)
 
         self.displayUiMessageHandler(f'Done : {msg}')
 
@@ -639,38 +653,36 @@ class App(customtkinter.CTk):
         userData = self.mergeHandler().exportXlsxData()
         self.saveAsExcelHanlder(userData)
 
-
-
     # @return class MERGE_HANDLER.
+
     def mergeHandler(self):
         loadJsonData = self.JASON_HANDLER.loadJasonFile()
-  
+
         result = MERGE_HANDLER(
             {
-                'uiApp':self,
-                'dowloadPath':loadJsonData[self.tabNameSetting]['chromePath']['value'],
-                'condition':loadJsonData[self.tabNameEmail]['condition']['value'],
-                'findOrders':loadJsonData[self.tabNameEmail]['findOrders']['value'],
-                'tag':loadJsonData[self.tabNameEmail]['analytics']['value'],
-                'template':loadJsonData[self.tabNameEmail]['template']['value']
+                'uiApp': self,
+                'dowloadPath': loadJsonData[self.tabNameSetting]['chromePath']['value'],
+                'condition': loadJsonData[self.tabNameEmail]['condition']['value'],
+                'findOrders': loadJsonData[self.tabNameEmail]['findOrders']['value'],
+                'tag': loadJsonData[self.tabNameEmail]['analytics']['value'],
+                'template': loadJsonData[self.tabNameEmail]['template']['value'],
+                'deliverytime': loadJsonData[self.tabNameEmail]['deliverytime']['value']
             }
         )
 
-        
-
         return result
-
-
 
     def chromeLoginUser(self):
         loadJsonData = self.JASON_HANDLER.loadJasonFile()
-        self.WEB_HANDLER.createChrome(loadJsonData[self.tabNameSetting]['chromePath']['value'])
-
+        self.WEB_HANDLER.createChrome(
+            loadJsonData[self.tabNameSetting]['chromePath']['value'])
 
 
 """
 window Frame.
 """
+
+
 class SidebarFrame(customtkinter.CTkFrame):
     def __init__(self, master):
         super().__init__(master)
@@ -679,75 +691,77 @@ class SidebarFrame(customtkinter.CTkFrame):
 """
 sub window view.
 """
+
+
 class ToplevelWindow(customtkinter.CTkToplevel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        #### Configure window.
+        # Configure window.
         # Width of the screen
-        self.displayWidth = self.winfo_screenwidth()  
+        self.displayWidth = self.winfo_screenwidth()
         # Height of the screen
         self.displayHeight = self.winfo_screenheight()
         self.width = 400
         self.height = 300
 
-
-        #### Setting.
+        # Setting.
         self.minsize(self.width, self.height)
         self.resizable(False, False)
         # Window title
         self.title('Send test email')
 
-
-        #### Coordinate window.
+        # Coordinate window.
         self.x = (self.displayWidth/2) - (self.width/2)
         self.y = (self.displayHeight/2) - (self.height/2)
-        self.geometry('%dx%d+%d+%d' % (self.width, self.height, self.x, self.y))
+        self.geometry('%dx%d+%d+%d' %
+                      (self.width, self.height, self.x, self.y))
 
-
-        #### Content layout.
+        # Content layout.
         # title.
-        self.title = customtkinter.CTkLabel(self, text='Send test email') 
+        self.title = customtkinter.CTkLabel(self, text='Send test email')
         self.title.pack(padx=20, pady=20)
         # entry.
-        self.entryBox = customtkinter.CTkEntry(master=self, placeholder_text='email', width=300)
-        self.entryBox.pack(padx=20, pady=0 )
+        self.entryBox = customtkinter.CTkEntry(
+            master=self, placeholder_text='email', width=300)
+        self.entryBox.pack(padx=20, pady=0)
         # description.
-        self.entryInfo = customtkinter.CTkLabel(master=self, text='If testing multiple emails at the same time, use  \',\'  to \nconnect emails.', justify='left', width=500)
+        self.entryInfo = customtkinter.CTkLabel(
+            master=self, text='If testing multiple emails at the same time, use  \',\'  to \nconnect emails.', justify='left', width=500)
         self.entryInfo.pack(pady=5)
         # Warning info.
-        self.entryWarning = customtkinter.CTkLabel(master=self, text='', text_color=warningColor, font=customtkinter.CTkFont(weight='bold'))
+        self.entryWarning = customtkinter.CTkLabel(
+            master=self, text='', text_color=warningColor, font=customtkinter.CTkFont(weight='bold'))
         self.entryWarning.pack(padx=20, pady=20)
         # confirm button
         self.btn = customtkinter.CTkButton(self, command=self.sendEmail)
         self.btn.pack(padx=20, pady=10)
         self.btn.configure(text='SEND')
-        
 
-        #### Parent module
+        # Parent module
         self.parentModule = ''
-
 
     def sendEmail(self):
         entryBoxValue = self.entryBox.get()
-    
-        if(entryBoxValue != ''):
+
+        if (entryBoxValue != ''):
             entrySplit = entryBoxValue.split(',')
             emails = []
-            
+
             for i in entrySplit:
                 includeAtSymbol = True if '@' in i and len(i) >= 3 else False
-                emailFormat = True if i.split('@')[0] !='' and i.split('@')[1] !='' else False
+                emailFormat = True if i.split(
+                    '@')[0] != '' and i.split('@')[1] != '' else False
 
-            if(includeAtSymbol and emailFormat):
+            if (includeAtSymbol and emailFormat):
                 # remove any spaces
                 for i in entrySplit:
-                    emails.append(i.replace(' ',''))
+                    emails.append(i.replace(' ', ''))
                     self.parentModule.sendTestEmailHandler(emails)
-                  
+
             else:
                 self.entryWarning.configure(text='email format not correct.')
-        
+
         else:
             self.entryWarning.configure(text='emails can\'t not be empty')
 

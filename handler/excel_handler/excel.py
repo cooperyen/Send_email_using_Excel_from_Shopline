@@ -157,6 +157,7 @@ class EXECL_HANDLER:
                             'email': email,
                             'template': self.tagTarget['template']['value'],
                             'analytics': self.tagTarget['analytics']['value'],
+                            'deliverytime': self.tagTarget['deliverytime']['value'],
                             'subject': self.tagTarget["subject"]["value"].replace('{name}', 'test name')
                             }
                 

@@ -6,11 +6,10 @@ import json
 # DOMAIN = 'rafagotest.a2hosted.com'
 
 
-
 class EMAIL_HANDLER:
     def __init__(self, uiApp, loadJsonData, userData=None):
-        
-        # pass functions from parentNode. 
+
+        # pass functions from parentNode.
         self.uiApp = uiApp
 
         self.tagMailgun = loadJsonData['mailgun']
@@ -27,58 +26,64 @@ class EMAIL_HANDLER:
     validate email by millionverifier.
     """
     # @return Boolean.
+
     def riskValidate(self, email):
 
         url = f"https://api.millionverifier.com/api/v3/?api={self.validateApiKey}&email={email}&timeout=10"
 
-        
-
         response = requests.request("GET", url)
-        
+
         quality = json.loads(response.content)['quality']
 
         """
         3 levels of quality : Good, Bad, Risky.
         """
         # @return TRUE when quality is Good.
-        if(quality != 'good'):
-            self.uiApp.displayUiMessageHandler(f'{email} quality is {quality}, sending failed.', 'Warning')
+        if (quality != 'good'):
+            self.uiApp.displayUiMessageHandler(
+                f'{email} quality is {quality}, sending failed.', 'Warning')
             return False
-        else :
-            self.uiApp.displayUiMessageHandler(f'{email} quality is {quality}, start sending.')
+        else:
+            self.uiApp.displayUiMessageHandler(
+                f'{email} quality is {quality}, start sending.')
 
         return True if quality == 'good' else False
 
-    
-    def sendtemplateMessage(self, userData={'name', 'email', 'template', 'analytics', 'subject'}, testMode = False):
-        
+    def sendtemplateMessage(self, userData={'name', 'email', 'template', 'analytics', 'subject', 'deliverytime'}, testMode=False):
+
         def sendHelper():
+
+            sendData = {
+                'from': self.FROM,
+                'to': [userData['name'], f'<{userData["email"]}>'],
+                'subject':  userData['subject'],
+                'template': userData['template'],
+                't:variables': json.dumps({'name': userData['name']}),
+                'o:tag': [userData['analytics']],
+            }
+
+            if userData['deliverytime'] != '':
+                sendData['o:deliverytime'] = userData['deliverytime']
+
             post = requests.post(
                 f'https://api.mailgun.net/v3/{self.DOMAIN}/messages',
                 auth=('api', self.mailgunApiKey),
-                data={'from': self.FROM,
-                    'to': [userData['name'], f'<{userData["email"]}>'],
-                    'subject':  userData["subject"],
-                    'template': userData['template'],
-                    't:variables': json.dumps({'name': userData["name"]}),
-                    'o:tag': [userData["analytics"]]
-                    }
+                data=sendData
             )
 
             message = json.loads(post.content)['message']
-            self.uiApp.displayUiMessageHandler(f'{userData["email"]} : {message}')
-        
-          
+            self.uiApp.displayUiMessageHandler(
+                f'{userData["email"]} : {message}')
+
         if ('name' and 'template' and 'email' and 'analytics' and 'subject' in self.tagTarget.keys()):
 
-            if(testMode):
+            if (testMode):
                 sendHelper()
             else:
                 sendHelper() if self.riskValidate(userData["email"]) else False
-                
+
         else:
             return False
-
 
     def sendingEmails(self):
 
@@ -94,12 +99,12 @@ class EMAIL_HANDLER:
                             'email': email,
                             'template': self.tagTarget['template']['value'],
                             'analytics': self.tagTarget['analytics']['value'],
-                            'subject': self.tagTarget["subject"]["value"].replace('{name}', name)
+                            'subject': self.tagTarget["subject"]["value"].replace('{name}', name),
+                            'deliverytime': self.tagTarget['deliverytime']['value'],
                             }
-                
+
                 sendState = self.sendtemplateMessage(userData)
                 num = num + 1
-
 
                 if (sendState == False):
                     num = num - 1
@@ -107,14 +112,11 @@ class EMAIL_HANDLER:
                     # state = False
                     # break
 
+        return {'state': state, 'num': num, 'userData': excelData}
 
-
-
-        return {'state':state, 'num':num, 'userData':excelData }  
-        
     def directSendEmails(self, email=None):
 
-        if (email != None ):
+        if (email != None):
             state = True
             num = 0
             for i in email:
@@ -122,15 +124,14 @@ class EMAIL_HANDLER:
                             'email': i,
                             'template': self.tagTarget['template']['value'],
                             'analytics': self.tagTarget['analytics']['value'],
+                            'deliverytime': self.tagTarget['deliverytime']['value'],
                             'subject': self.tagTarget["subject"]["value"].replace('{name}', 'test name')
                             }
-                sendState = self.sendtemplateMessage(userData, testMode = True)
+                sendState = self.sendtemplateMessage(userData, testMode=True)
                 num = num + 1
                 if (sendState == False):
                     num = num - 1
                     state = False
                     break
 
-            return {'state':state, 'num':num }    
-                
-
+            return {'state': state, 'num': num}
