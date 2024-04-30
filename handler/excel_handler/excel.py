@@ -66,15 +66,16 @@ class EXECL_HANDLER:
         array = []
 
         for i in range(len(arrays)):
-            result = []
+            result = {}
             for x in range(len(self.titleList)):
                 for s in range(tables.ncols):
                     if (tables.cell(0, s).value == self.titleList[x]):
-
-                        result.append(tables.cell(arrays[i], s).value)
-
+                        # result.append(tables.cell(arrays[i], s).value)
+                        result[tables.cell(0, s).value] = tables.cell(arrays[i], s).value
+ 
             array.append(result)
 
+        print(array)
         return array
 
     def createNewExcelWithData(self, uiApp, data, types=''):

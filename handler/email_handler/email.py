@@ -76,7 +76,7 @@ class EMAIL_HANDLER:
                 f'{userData["email"]} : {message}')
 
         if ('name' and 'template' and 'email' and 'analytics' and 'subject' in self.tagTarget.keys()):
-
+            
             if (testMode):
                 sendHelper()
             else:
@@ -89,12 +89,15 @@ class EMAIL_HANDLER:
 
         excelData = self.userData
 
+        print(excelData)
+
         num = 0
         if (excelData != False):
             state = True
             for i in excelData:
-                name = i[1]
-                email = i[3]
+                names = i.get('全名')
+                name = names if names else ''
+                email = i['電郵']
                 userData = {'name': name,
                             'email': email,
                             'template': self.tagTarget['template']['value'],
